@@ -13,6 +13,11 @@ class OrderItemResource extends JsonResource
             'id'                     => $this->id,
             'order_id'               => $this->order_id,
             'garment_type'           => $this->garment_type,
+            'measurement_type_id'    => $this->measurement_type_id,
+            'measurement_type'       => $this->whenLoaded('measurementType', fn () => $this->measurementType ? [
+                'id' => $this->measurementType->id, 'name' => $this->measurementType->name, 'image_url' => $this->measurementType->image_url,
+            ] : null),
+            'measurements'           => OrderItemMeasurementResource::collection($this->whenLoaded('measurements')),
             'fabric_source'          => $this->fabric_source,
             'style_specifications'   => $this->style_specifications,
             'production_status'      => $this->production_status,
