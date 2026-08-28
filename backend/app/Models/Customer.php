@@ -45,4 +45,9 @@ class Customer extends Authenticatable implements CanResetPasswordContract
     {
         return $this->hasMany(CustomerMeasurement::class);
     }
+
+    public function alterationOrders()
+    {
+        return $this->hasMany(AlterationOrder::class);
+    }
 }
