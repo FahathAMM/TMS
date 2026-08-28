@@ -12,7 +12,7 @@ class UpdateCustomerMeasurementsRequest extends FormRequest
     {
         return [
             'measurements'                        => 'required|array|min:1',
-            'measurements.*.measurement_type_id'  => 'required|exists:measurement_types,id',
+            'measurements.*.measurement_field_id' => 'required|exists:measurement_fields,id',
             'measurements.*.value'                 => 'required|numeric|min:0|max:9999.99',
         ];
     }
