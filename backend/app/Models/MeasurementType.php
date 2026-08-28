@@ -7,10 +7,19 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MeasurementType extends Model
 {
-    protected $fillable = ['name', 'category', 'unit'];
+    protected $fillable = ['name', 'description', 'image', 'is_active'];
 
-    public function customerMeasurements(): HasMany
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
+    public function fields(): HasMany
     {
-        return $this->hasMany(CustomerMeasurement::class);
+        return $this->hasMany(MeasurementField::class);
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image ? asset('storage/' . $this->image) : null;
     }
 }

@@ -12,7 +12,7 @@ class OrderItem extends Model
     protected $fillable = [
         'order_id', 'product_id', 'variant_id',
         'product_name', 'product_sku', 'product_image',
-        'garment_type', 'fabric_source', 'style_specifications',
+        'garment_type', 'measurement_type_id', 'fabric_source', 'style_specifications',
         'production_status', 'job_card_number', 'qc_notes', 'qc_passed_at',
         'unit_price', 'quantity', 'discount', 'total',
     ];
@@ -54,6 +54,16 @@ class OrderItem extends Model
     public function materials(): HasMany
     {
         return $this->hasMany(OrderItemMaterial::class);
+    }
+
+    public function measurementType(): BelongsTo
+    {
+        return $this->belongsTo(MeasurementType::class);
+    }
+
+    public function measurements(): HasMany
+    {
+        return $this->hasMany(OrderItemMeasurement::class);
     }
 
     public function assignments(): HasMany
