@@ -42,6 +42,11 @@ class StoreOrderRequest extends FormRequest
             'items.*.materials'                         => 'nullable|array',
             'items.*.materials.*.product_id'            => 'required_with:items.*.materials|exists:products,id',
             'items.*.materials.*.quantity_required'     => 'required_with:items.*.materials|numeric|min:0.01',
+
+            'items.*.measurement_type_id'                       => 'nullable|exists:measurement_types,id',
+            'items.*.measurements'                              => 'nullable|array',
+            'items.*.measurements.*.measurement_field_id'       => 'required_with:items.*.measurements|exists:measurement_fields,id',
+            'items.*.measurements.*.value'                      => 'nullable|numeric|min:0|max:9999.99',
         ];
     }
 }

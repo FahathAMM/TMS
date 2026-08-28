@@ -11,9 +11,17 @@ class UpdateMeasurementTypeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'     => 'sometimes|required|string|max:100',
-            'category' => 'sometimes|required|string|max:100',
-            'unit'     => 'nullable|string|max:10',
+            'name'                    => 'required|string|max:100',
+            'description'             => 'nullable|string|max:1000',
+            'is_active'               => 'nullable|boolean',
+
+            'fields'                  => 'required|array|min:1',
+            'fields.*.id'             => 'nullable|integer|exists:measurement_fields,id',
+            'fields.*.number'         => 'required|integer|min:1|distinct',
+            'fields.*.name'           => 'required|string|max:100',
+            'fields.*.unit'           => 'nullable|string|max:10',
+            'fields.*.required'       => 'nullable|boolean',
+            'fields.*.sort_order'     => 'nullable|integer|min:0',
         ];
     }
 }
