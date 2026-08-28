@@ -11,10 +11,14 @@ class CustomerMeasurementResource extends JsonResource
     {
         return [
             'id'                    => $this->id,
-            'measurement_type_id'   => $this->measurement_type_id,
-            'name'                  => $this->measurementType?->name,
-            'category'              => $this->measurementType?->category,
-            'unit'                  => $this->measurementType?->unit,
+            'measurement_field_id'  => $this->measurement_field_id,
+            'number'                => $this->measurementField?->number,
+            'name'                  => $this->measurementField?->name,
+            'unit'                  => $this->measurementField?->unit,
+            'measurement_type'      => $this->measurementField?->measurementType ? [
+                'id'   => $this->measurementField->measurementType->id,
+                'name' => $this->measurementField->measurementType->name,
+            ] : null,
             'value'                 => (float) $this->value,
             'recorded_at'           => $this->recorded_at?->toISOString(),
         ];
