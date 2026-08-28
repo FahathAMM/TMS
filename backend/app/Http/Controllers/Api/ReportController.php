@@ -45,4 +45,14 @@ class ReportController extends Controller
     {
         return response()->json(['data' => $this->reportService->tailorProductivity($request->get('from'), $request->get('to'))]);
     }
+
+    public function alterationOrders(Request $request): JsonResponse
+    {
+        return response()->json(['data' => $this->reportService->alterationOrdersSummary($request->get('from'), $request->get('to'))]);
+    }
+
+    public function alterationRevenue(Request $request): JsonResponse
+    {
+        return response()->json(['data' => $this->reportService->alterationRevenue($request->get('from'), $request->get('to'))]);
+    }
 }

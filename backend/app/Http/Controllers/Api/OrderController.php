@@ -63,7 +63,7 @@ class OrderController extends Controller
 
     public function show(Order $order): JsonResponse
     {
-        $order->load(['customer', 'items.materials.product', 'items.assignments.tailor', 'payments']);
+        $order->load(['customer', 'items.materials.product', 'items.assignments.tailor', 'items.measurementType', 'items.measurements.measurementField', 'payments']);
 
         return response()->json(['data' => new OrderResource($order)]);
     }

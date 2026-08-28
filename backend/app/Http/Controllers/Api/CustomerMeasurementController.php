@@ -12,7 +12,7 @@ class CustomerMeasurementController extends Controller
 {
     public function index(Customer $customer): JsonResponse
     {
-        $measurements = $customer->measurements()->with('measurementType')->get();
+        $measurements = $customer->measurements()->with('measurementField.measurementType')->get();
 
         return response()->json(['data' => CustomerMeasurementResource::collection($measurements)]);
     }
@@ -25,7 +25,7 @@ class CustomerMeasurementController extends Controller
     {
         foreach ($request->validated('measurements') as $measurement) {
             $customer->measurements()->updateOrCreate(
-                ['measurement_type_id' => $measurement['measurement_type_id']],
+                ['measurement_field_id' => $measurement['measurement_field_id']],
                 ['value' => $measurement['value'], 'recorded_at' => now()]
             );
         }
@@ -33,7 +33,7 @@ class CustomerMeasurementController extends Controller
         return response()->json([
             'message' => 'Measurements saved successfully',
             'data'    => CustomerMeasurementResource::collection(
-                $customer->measurements()->with('measurementType')->get()
+                $customer->measurements()->with('measurementField.measurementType')->get()
             ),
         ]);
     }
