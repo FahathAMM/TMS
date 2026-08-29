@@ -19,6 +19,7 @@ class AccountSeeder extends Seeder
             ['code' => AccountingService::SALES_REVENUE,    'name' => 'Tailoring Sales Revenue', 'type' => 'revenue', 'normal_balance' => 'credit'],
             ['code' => AccountingService::COGS,              'name' => 'Cost of Goods Sold',   'type' => 'expense',   'normal_balance' => 'debit'],
             ['code' => AccountingService::EXPENSES,          'name' => 'Operating Expenses',   'type' => 'expense',   'normal_balance' => 'debit'],
+            ['code' => AccountingService::ALTERATION_REVENUE,'name' => 'Alteration Revenue',   'type' => 'revenue',   'normal_balance' => 'credit'],
         ];
 
         foreach ($accounts as $account) {

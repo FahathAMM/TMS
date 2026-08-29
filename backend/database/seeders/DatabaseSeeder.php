@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
         // Chart of accounts (double-entry ledger) and measurement lookups
         $this->call(AccountSeeder::class);
         $this->call(MeasurementTypeSeeder::class);
+        $this->call(AlterationTypeSeeder::class);
 
         // Store settings (key-value, cached)
         $this->call(StoreSettingSeeder::class);
@@ -49,6 +50,9 @@ class DatabaseSeeder extends Seeder
         // Fabric & trim catalogue (categories, brands, products) — replaces the
         // Mobile Shop POS electronics seed data from the original scaffold.
         $this->call(FabricCatalogSeeder::class);
+
+        // Tailors available for assignment on order items
+        $this->call(TailorSeeder::class);
 
         // Customers
         $customers = [

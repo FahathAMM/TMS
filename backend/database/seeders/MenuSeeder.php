@@ -24,7 +24,7 @@ class MenuSeeder extends Seeder
             ]);
 
             // ── 2. Section: Customers ────────────────────────────────────────────
-            $sCustomers = $this->section('section_customers', 'Customers', 5);
+            $sCustomers = $this->section('section_customers', 'Customers', 5, 'UserCircle');
 
             $this->upsert('customers', [
                 'name' => 'Customers', 'route_name' => '/customers',
@@ -32,7 +32,7 @@ class MenuSeeder extends Seeder
             ]);
 
             // ── 2b. Section: Tailoring ────────────────────────────────────────────
-            $sTailoring = $this->section('section_tailoring', 'Tailoring', 6);
+            $sTailoring = $this->section('section_tailoring', 'Tailoring', 6, 'Shirt');
 
             $this->upsert('tailoring_orders', [
                 'name' => 'Orders', 'route_name' => '/orders',
@@ -41,6 +41,10 @@ class MenuSeeder extends Seeder
             $this->upsert('production', [
                 'name' => 'Production', 'route_name' => '/production',
                 'icon' => 'ClipboardList', 'sort_order' => 2, 'parent_id' => $sTailoring->id,
+            ]);
+            $this->upsert('alteration', [
+                'name' => 'Alteration', 'route_name' => '/alteration',
+                'icon' => 'Scissors', 'sort_order' => 3, 'parent_id' => $sTailoring->id,
             ]);
             $this->upsert('tailors', [
                 'name' => 'Tailors', 'route_name' => '/tailors',
@@ -54,9 +58,13 @@ class MenuSeeder extends Seeder
                 'name' => 'Price List', 'route_name' => '/garment-prices',
                 'icon' => 'Tag', 'sort_order' => 6, 'parent_id' => $sTailoring->id,
             ]);
+            $this->upsert('alteration_types', [
+                'name' => 'Alteration Types', 'route_name' => '/alteration-types',
+                'icon' => 'Scissors', 'sort_order' => 7, 'parent_id' => $sTailoring->id,
+            ]);
 
             // ── 2c. Section: Inventory ───────────────────────────────────────────
-            $sInventory = $this->section('section_inventory', 'Inventory', 7);
+            $sInventory = $this->section('section_inventory', 'Inventory', 8, 'Warehouse');
 
             $this->upsert('products', [
                 'name' => 'Fabrics & Trims', 'route_name' => '/products',
@@ -76,7 +84,7 @@ class MenuSeeder extends Seeder
             ]);
 
             // ── 2d. Section: Accounting (admin-only, no staff permission sync) ────
-            $sAccounting = $this->section('section_accounting', 'Accounting', 8);
+            $sAccounting = $this->section('section_accounting', 'Accounting', 8, 'DollarSign');
 
             $this->upsert('accounting_accounts', [
                 'name' => 'Chart of Accounts', 'route_name' => '/accounting/accounts',
@@ -96,7 +104,7 @@ class MenuSeeder extends Seeder
             ]);
 
             // ── 2e. Section: Reports (business/operational, not GL) ────────────────
-            $sReports = $this->section('section_reports', 'Reports', 9);
+            $sReports = $this->section('section_reports', 'Reports', 9, 'PieChart');
 
             $this->upsert('reports', [
                 'name' => 'Reports', 'route_name' => '/reports',
@@ -104,7 +112,7 @@ class MenuSeeder extends Seeder
             ]);
 
             // ── 3. Section: Administration ───────────────────────────────────────
-            $sAdmin = $this->section('section_admin', 'Administration', 10);
+            $sAdmin = $this->section('section_admin', 'Administration', 10, 'Lock');
 
             $this->upsert('users', [
                 'name' => 'Users', 'route_name' => '/users',
@@ -140,14 +148,14 @@ class MenuSeeder extends Seeder
         return $menu;
     }
 
-    private function section(string $slug, string $name, int $sortOrder): Menu
+    private function section(string $slug, string $name, int $sortOrder, ?string $icon = null): Menu
     {
         $menu = Menu::firstOrNew(['slug' => $slug]);
         $menu->fill([
             'slug'       => $slug,
             'name'       => $name,
             'route_name' => null,
-            'icon'       => null,
+            'icon'       => $icon,
             'parent_id'  => null,
             'sort_order' => $sortOrder,
             'is_active'  => true,
