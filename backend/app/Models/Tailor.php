@@ -18,6 +18,11 @@ class Tailor extends Model
         return $this->hasMany(TailorAssignment::class);
     }
 
+    public function alterationTaskAssignments(): HasMany
+    {
+        return $this->hasMany(AlterationTaskAssignment::class);
+    }
+
     public function getFullNameAttribute(): string
     {
         return trim("{$this->first_name} {$this->last_name}");

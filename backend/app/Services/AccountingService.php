@@ -18,6 +18,7 @@ class AccountingService
     public const SALES_REVENUE     = 'SALES_REV';
     public const COGS              = 'COGS';
     public const EXPENSES          = 'EXPENSES';
+    public const ALTERATION_REVENUE = 'ALTERATION_REV';
 
     /**
      * Post a balanced double-entry journal entry.

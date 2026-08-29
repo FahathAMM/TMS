@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\AlterationGarment;
+use App\Models\AlterationOrder;
 use App\Models\Expense;
 use App\Models\Order;
 use App\Models\OrderPayment;
@@ -171,5 +173,64 @@ class ReportService
                 'tailor_name'      => $row->tailor_name,
                 'items_completed'  => (int) $row->items_completed,
             ])->all();
+    }
+
+    /**
+     * Alteration order counts and totals grouped by status, plus how many
+     * garments are ready and waiting for pickup right now.
+     */
+    public function alterationOrdersSummary(?string $from, ?string $to): array
+    {
+        $query = AlterationOrder::query()
+            ->when($from, fn ($q) => $q->whereDate('received_date', '>=', $from))
+            ->when($to, fn ($q) => $q->whereDate('received_date', '<=', $to));
+
+        $byStatus = (clone $query)
+            ->select('status', DB::raw('COUNT(*) as count'), DB::raw('SUM(total_amount) as total'))
+            ->groupBy('status')
+            ->get()
+            ->map(fn ($row) => [
+                'status' => $row->status,
+                'count'  => (int) $row->count,
+                'total'  => round((float) $row->total, 2),
+            ])->all();
+
+        return [
+            'by_status'               => $byStatus,
+            'total_orders'            => (clone $query)->count(),
+            'total_value'             => round((float) (clone $query)->sum('total_amount'), 2),
+            'garments_pending_pickup' => AlterationGarment::where('status', 'ready')->count(),
+        ];
+    }
+
+    /**
+     * Recognised alteration revenue (from the GL), within an optional date range.
+     */
+    public function alterationRevenue(?string $from, ?string $to): array
+    {
+        $lineQuery = fn () => DB::table('journal_entry_lines')
+            ->join('accounts', 'accounts.id', '=', 'journal_entry_lines.account_id')
+            ->join('journal_entries', 'journal_entries.id', '=', 'journal_entry_lines.journal_entry_id')
+            ->where('accounts.code', AccountingService::ALTERATION_REVENUE)
+            ->when($from, fn ($q) => $q->where('journal_entries.entry_date', '>=', $from))
+            ->when($to, fn ($q) => $q->where('journal_entries.entry_date', '<=', $to));
+
+        $totalRevenue = (float) $lineQuery()->sum('credit') - (float) $lineQuery()->sum('debit');
+
+        $byDate = $lineQuery()
+            ->select(
+                'journal_entries.entry_date as date',
+                DB::raw('SUM(journal_entry_lines.credit) - SUM(journal_entry_lines.debit) as total'),
+            )
+            ->groupBy('journal_entries.entry_date')
+            ->orderBy('journal_entries.entry_date')
+            ->get()
+            ->map(fn ($row) => ['date' => $row->date, 'total' => round((float) $row->total, 2)])
+            ->all();
+
+        return [
+            'total_revenue' => round($totalRevenue, 2),
+            'by_date'       => $byDate,
+        ];
     }
 }
