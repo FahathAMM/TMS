@@ -3,123 +3,128 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { useAuthStore } from "@/store/authStore";
-import { useNavigationMenu } from "@/hooks/useMenus";
 import { getIcon } from "@/lib/iconMap";
-import { Store, ChevronRight } from "lucide-react";
+import { ChevronDown, Plus, Store, X } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { storeSettingService } from "@/services/storeSettingService";
+import { TILE_COLORS } from "@/lib/tileColors";
 
-// ── Section header (parent with no route_name) ────────────────────────────────
-function SectionHeader({ item, pathname }) {
+function isRouteActive(pathname, route) {
+  return !!route && (pathname === route || pathname.startsWith(route + "/"));
+}
+
+function sectionHasActiveChild(item, pathname) {
+  return item.children?.some((c) => isRouteActive(pathname, c.route_name));
+}
+
+// ── Start-menu-style tile — two per row in the sidebar grid ──────────────────
+function NavTile({ item, pathname, onNavigate, colorClass }) {
+  const Icon = getIcon(item.icon);
+  const isActive = isRouteActive(pathname, item.route_name);
+
   return (
-    <div className="mt-4 first:mt-0">
-      <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40 select-none">
-        {item.name}
-      </p>
-      {item.children?.map((child) => (
-        <NavItem key={child.id} item={child} pathname={pathname} depth={0} />
-      ))}
-    </div>
+    <Link
+      href={item.route_name}
+      onClick={onNavigate}
+      className={cn(
+        "relative flex aspect-square flex-col items-center justify-center gap-2 rounded-md p-2 text-center text-white shadow-sm transition-transform hover:scale-[1.03]",
+        colorClass,
+        isActive && "ring-2 ring-white ring-offset-2 ring-offset-sidebar"
+      )}
+    >
+      <Icon className="h-7 w-7 shrink-0" />
+      <span className="text-xs font-semibold leading-tight px-1 line-clamp-2">{item.name}</span>
+    </Link>
   );
 }
 
-// ── Collapsible parent (has route_name AND children) ─────────────────────────
-function CollapsibleItem({ item, pathname, depth }) {
+// ── Collapsible parent (has route_name AND children) — spans both columns ────
+function CollapsibleItem({ item, pathname, depth, onNavigate }) {
   const Icon = getIcon(item.icon);
-  const isActive = pathname === item.route_name || pathname.startsWith(item.route_name + "/");
-  const hasActiveChild = item.children?.some(
-    (c) => c.route_name && (pathname === c.route_name || pathname.startsWith(c.route_name + "/"))
-  );
+  const isActive = isRouteActive(pathname, item.route_name);
+  const hasActiveChild = sectionHasActiveChild(item, pathname);
   const [expanded, setExpanded] = useState(isActive || hasActiveChild);
-  const indent = 12 + depth * 14;
+  const indent = 12 + depth * 16;
 
   return (
     <div>
       <button
+        type="button"
         onClick={() => setExpanded((e) => !e)}
         className={cn(
-          "w-full flex items-center gap-2.5 py-2.5 rounded-lg text-sm font-medium transition-colors",
+          "w-full flex items-center gap-3 min-h-[3rem] rounded-lg text-sm font-medium transition-colors",
           isActive || hasActiveChild
-            ? "bg-sidebar-primary/10 text-sidebar-primary"
+            ? "bg-sidebar-primary/15 text-sidebar-primary"
             : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
         )}
         style={{ paddingLeft: `${indent}px`, paddingRight: "10px" }}
       >
-        <Icon className="h-4 w-4 shrink-0" />
+        <span
+          className={cn(
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors",
+            (isActive || hasActiveChild) ? "bg-sidebar-primary/15" : "bg-sidebar-accent/60"
+          )}
+        >
+          <Icon className="h-6 w-6 shrink-0" />
+        </span>
         <span className="flex-1 text-left truncate">{item.name}</span>
-        <ChevronRight
-          className={cn("h-3.5 w-3.5 shrink-0 transition-transform", expanded && "rotate-90")}
+        <ChevronDown
+          className={cn("h-4 w-4 shrink-0 transition-transform duration-200", expanded && "rotate-180")}
         />
       </button>
-      {expanded && (
-        <div>
-          {item.children.map((child) => (
-            <NavItem key={child.id} item={child} pathname={pathname} depth={depth + 1} />
-          ))}
+      <div
+        className="grid transition-[grid-template-rows] duration-200 ease-out"
+        style={{ gridTemplateRows: expanded ? "1fr" : "0fr" }}
+      >
+        <div className="overflow-hidden">
+          <div className="space-y-1 pt-1">
+            {item.children.map((child) => (
+              <NavLink key={child.id} item={child} pathname={pathname} depth={depth + 1} onNavigate={onNavigate} />
+            ))}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
 
-// ── Regular nav link ──────────────────────────────────────────────────────────
-function NavLink({ item, pathname, depth }) {
+// ── Plain list-style link — used for nested children only ────────────────────
+function NavLink({ item, pathname, depth, onNavigate }) {
   const Icon = getIcon(item.icon);
   const route = item.route_name;
-  const isActive = pathname === route || pathname.startsWith(route + "/");
-  const indent = 12 + depth * 14;
+  const isActive = isRouteActive(pathname, route);
+  const indent = 12 + depth * 16;
 
   return (
     <Link
       href={route}
+      onClick={onNavigate}
       className={cn(
-        "flex items-center gap-2.5 py-2.5 rounded-lg text-sm font-medium transition-colors",
+        "flex items-center gap-3 min-h-[3rem] rounded-lg text-sm font-medium transition-colors",
         isActive
-          ? "bg-sidebar-primary text-sidebar-primary-foreground"
+          ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
           : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
       )}
       style={{ paddingLeft: `${indent}px`, paddingRight: "10px" }}
     >
-      <Icon className="h-4 w-4 shrink-0" />
+      <span
+        className={cn(
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors",
+          isActive ? "bg-sidebar-primary-foreground/20" : "bg-sidebar-accent/60"
+        )}
+      >
+        <Icon className="h-6 w-6 shrink-0" />
+      </span>
       <span className="truncate">{item.name}</span>
     </Link>
   );
 }
 
-// ── Dispatcher ────────────────────────────────────────────────────────────────
-function NavItem({ item, pathname, depth = 0 }) {
-  const isSection = !item.route_name && item.children?.length > 0;
-  const hasChildren = item.children?.length > 0;
-
-  if (isSection) return <SectionHeader item={item} pathname={pathname} />;
-  if (hasChildren) return <CollapsibleItem item={item} pathname={pathname} depth={depth} />;
-  if (item.route_name) return <NavLink item={item} pathname={pathname} depth={depth} />;
-  return null;
-}
-
-// ── Skeleton while loading ────────────────────────────────────────────────────
-function NavSkeleton() {
-  const widths = [55, 80, 65, 75, 60, 70, 55, 65, 80, 60, 70, 75];
-  return (
-    <div className="space-y-1 animate-pulse">
-      {widths.map((w, i) => (
-        <div
-          key={i}
-          className="h-9 rounded-lg bg-sidebar-accent/30"
-          style={{ width: `${w}%`, marginLeft: i % 4 === 0 ? 0 : "8px" }}
-        />
-      ))}
-    </div>
-  );
-}
-
-// ── Sidebar ───────────────────────────────────────────────────────────────────
-export function Sidebar() {
+// ── Sidebar — Start-menu-style tile grid for the active module's pages ───────
+export function Sidebar({ activeModule, navigation, open = false, onClose }) {
   const pathname = usePathname();
-  const { user } = useAuthStore();
-  const { data: navigation, isLoading } = useNavigationMenu();
+  const dashboardItem = navigation?.find((item) => item.route_name);
 
   const { data: publicSettings = {} } = useQuery({
     queryKey: ["admin-settings"],
@@ -130,42 +135,83 @@ export function Sidebar() {
   const logoUrl   = publicSettings.media_logo || null;
 
   return (
-    <aside className="w-64 min-h-screen bg-sidebar text-sidebar-foreground flex flex-col border-r border-sidebar-border">
-      {/* Brand */}
-      <div className="border-b border-sidebar-border">
-        <Link href="/dashboard" className="flex items-center gap-2 p-6 hover:bg-sidebar-accent/30 transition-colors">
-          {logoUrl ? (
-            <img src={logoUrl} alt={storeName} className="h-8 w-auto max-w-[120px] object-contain shrink-0" />
-          ) : (
-            <div className="w-8 h-8 rounded-lg bg-sidebar-primary flex items-center justify-center shrink-0">
-              <Store className="h-4 w-4 text-sidebar-primary-foreground" />
-            </div>
-          )}
-          <div>
-            {!logoUrl && <p className="font-bold text-sm">{storeName}</p>}
-            <p className="text-xs text-sidebar-foreground/60">Admin Panel</p>
-          </div>
-        </Link>
-      </div>
+    <>
+      {/* Mobile/tablet backdrop */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-3 overflow-y-auto space-y-0.5">
-        {isLoading ? (
-          <NavSkeleton />
-        ) : (
-          navigation?.map((item) => (
-            <NavItem key={item.id} item={item} pathname={pathname} />
-          ))
+      <aside
+        className={cn(
+          "w-72 min-h-screen bg-sidebar text-sidebar-foreground flex flex-col border-r border-sidebar-border",
+          "fixed inset-y-0 left-0 z-50 transition-transform duration-200 ease-out",
+          "lg:static lg:translate-x-0 lg:w-64",
+          open ? "translate-x-0" : "-translate-x-full"
         )}
-      </nav>
-
-      {/* User footer */}
-      <div className="p-3 border-t border-sidebar-border">
-        <div className="px-3 py-2 rounded-lg bg-sidebar-accent/30">
-          <p className="text-xs font-medium truncate">{user?.name}</p>
-          <p className="text-xs text-sidebar-foreground/60 capitalize">{user?.role}</p>
+      >
+        {/* Brand */}
+        <div className="border-b border-sidebar-border flex items-center justify-between">
+          <Link href="/dashboard" onClick={onClose} className="flex items-center gap-2 p-6 hover:bg-sidebar-accent/30 transition-colors flex-1 min-w-0">
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logoUrl} alt={storeName} className="h-8 w-auto max-w-[120px] object-contain shrink-0" />
+            ) : (
+              <div className="w-8 h-8 rounded-lg bg-sidebar-primary flex items-center justify-center shrink-0">
+                <Store className="h-4 w-4 text-sidebar-primary-foreground" />
+              </div>
+            )}
+            <div className="min-w-0">
+              {!logoUrl && <p className="font-bold text-sm truncate">{storeName}</p>}
+              <p className="text-xs text-sidebar-foreground/60">Admin Panel</p>
+            </div>
+          </Link>
+          <button type="button" onClick={onClose} className="lg:hidden p-2 mr-3 rounded-md hover:bg-sidebar-accent/50 shrink-0">
+            <X className="h-5 w-5" />
+          </button>
         </div>
-      </div>
-    </aside>
+
+        {/* Tile grid — New Order pinned wide at top, then Dashboard + the active module's pages, two per row */}
+        <nav className="flex-1 px-3 py-3 overflow-y-auto">
+          {activeModule && (
+            <p className="px-1 mb-2 text-xs font-bold uppercase tracking-widest text-sidebar-foreground/40 select-none">
+              {activeModule.name}
+            </p>
+          )}
+          <div className="grid grid-cols-2 gap-2">
+            <Link
+              href="/orders/create"
+              onClick={onClose}
+              className="col-span-2 flex items-center justify-center gap-2 rounded-md bg-sidebar-primary py-4 text-sm font-semibold text-sidebar-primary-foreground shadow-sm transition-colors hover:bg-sidebar-primary/90"
+            >
+              <Plus className="h-5 w-5" />New Order
+            </Link>
+
+            {dashboardItem && (
+              <NavTile item={dashboardItem} pathname={pathname} onNavigate={onClose} colorClass={TILE_COLORS[0]} />
+            )}
+
+            {activeModule?.children?.map((item, i) =>
+              item.children?.length ? (
+                <div key={item.id} className="col-span-2">
+                  <CollapsibleItem item={item} pathname={pathname} depth={0} onNavigate={onClose} />
+                </div>
+              ) : (
+                <NavTile
+                  key={item.id}
+                  item={item}
+                  pathname={pathname}
+                  onNavigate={onClose}
+                  colorClass={TILE_COLORS[(i + 1) % TILE_COLORS.length]}
+                />
+              )
+            )}
+          </div>
+        </nav>
+      </aside>
+    </>
   );
 }

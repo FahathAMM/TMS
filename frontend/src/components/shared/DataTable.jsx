@@ -35,14 +35,14 @@ export function DataTable({
   return (
     <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-xs">
+        <table className="w-full text-sm">
           <thead>
             <tr className="border-b bg-muted/50">
               {columns.map((col) => (
                 <th
                   key={col.key}
                   className={cn(
-                    "h-9 px-4 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap",
+                    "h-11 px-4 text-left text-xs font-semibold text-muted-foreground whitespace-nowrap",
                     col.headerClass
                   )}
                 >
@@ -72,13 +72,13 @@ export function DataTable({
                 <td colSpan={columns.length} className="p-0">
                   {search ? (
                     <div className="flex flex-col items-center justify-center py-14 gap-3 text-muted-foreground">
-                      <SearchX className="h-9 w-9 opacity-40" />
+                      <SearchX className="h-11 w-11 opacity-40" />
                       <p className="text-sm font-medium">No results for &ldquo;{search}&rdquo;</p>
                       <p className="text-xs opacity-70">Try a different search term.</p>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center py-14 gap-3 text-muted-foreground">
-                      <Inbox className="h-9 w-9 opacity-40" />
+                      <Inbox className="h-11 w-11 opacity-40" />
                       <p className="text-sm font-medium">No records yet</p>
                       <p className="text-xs opacity-70">Get started by adding your first entry.</p>
                     </div>
@@ -91,7 +91,7 @@ export function DataTable({
                   {columns.map((col) => (
                     <td
                       key={col.key}
-                      className={cn("px-4 py-1 text-foreground", col.className)}
+                      className={cn("px-4 py-3 text-foreground", col.className)}
                     >
                       {col.render ? col.render(row) : (row[col.key] ?? "—")}
                     </td>

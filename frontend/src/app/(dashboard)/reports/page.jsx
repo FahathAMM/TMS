@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   useOrdersReport, usePaymentsReport, useOutstandingBalancesReport,
   useStockReport, usePurchasesReport, useExpensesReport, useTailorProductivityReport,
+  useAlterationOrdersReport, useAlterationRevenueReport,
 } from "@/hooks/useReports";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,10 +20,12 @@ const TABS = [
   { key: "purchases", label: "Purchases Summary" },
   { key: "expenses", label: "Expenses Summary" },
   { key: "tailors", label: "Tailor Productivity" },
+  { key: "alterationOrders", label: "Alteration Orders" },
+  { key: "alterationRevenue", label: "Alteration Revenue" },
 ];
 
 // Tabs whose data respects the from/to date filter.
-const DATE_SCOPED = new Set(["orders", "payments", "purchases", "expenses", "tailors"]);
+const DATE_SCOPED = new Set(["orders", "payments", "purchases", "expenses", "tailors", "alterationOrders", "alterationRevenue"]);
 
 function SimpleTable({ columns, rows }) {
   if (!rows || rows.length === 0) {
@@ -81,6 +84,8 @@ export default function ReportsPage() {
   const purchases = usePurchasesReport(params);
   const expenses = useExpensesReport(params);
   const tailors = useTailorProductivityReport(params);
+  const alterationOrders = useAlterationOrdersReport(params);
+  const alterationRevenue = useAlterationRevenueReport(params);
 
   return (
     <div className="space-y-4">
@@ -201,6 +206,49 @@ export default function ReportsPage() {
             { key: "items_completed", header: "Items Completed", align: "right" },
           ]}
         />
+      )}
+
+      {tab === "alterationOrders" && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="rounded-lg border p-4">
+              <p className="text-xs text-muted-foreground">Total Orders</p>
+              <p className="text-2xl font-semibold tabular-nums">{alterationOrders.data?.total_orders ?? 0}</p>
+            </div>
+            <div className="rounded-lg border p-4 bg-muted/30">
+              <p className="text-xs text-muted-foreground">Total Value</p>
+              <p className="text-2xl font-semibold tabular-nums">{Number(alterationOrders.data?.total_value ?? 0).toFixed(2)}</p>
+            </div>
+            <div className="rounded-lg border p-4">
+              <p className="text-xs text-muted-foreground">Garments Awaiting Pickup</p>
+              <p className="text-2xl font-semibold tabular-nums">{alterationOrders.data?.garments_pending_pickup ?? 0}</p>
+            </div>
+          </div>
+          <ReportCard
+            title="By Status" csvName="alteration-orders-by-status" rows={alterationOrders.data?.by_status}
+            columns={[
+              { key: "status", header: "Status" },
+              { key: "count", header: "Count", align: "right" },
+              { key: "total", header: "Total", align: "right", render: (r) => Number(r.total).toFixed(2) },
+            ]}
+          />
+        </div>
+      )}
+
+      {tab === "alterationRevenue" && (
+        <div className="space-y-4">
+          <div className="rounded-lg border p-4 bg-muted/30 w-fit">
+            <p className="text-xs text-muted-foreground">Total Recognised Revenue</p>
+            <p className="text-2xl font-semibold tabular-nums">{Number(alterationRevenue.data?.total_revenue ?? 0).toFixed(2)}</p>
+          </div>
+          <ReportCard
+            title="By Date" csvName="alteration-revenue-by-date" rows={alterationRevenue.data?.by_date}
+            columns={[
+              { key: "date", header: "Date" },
+              { key: "total", header: "Total", align: "right", render: (r) => Number(r.total).toFixed(2) },
+            ]}
+          />
+        </div>
       )}
     </div>
   );

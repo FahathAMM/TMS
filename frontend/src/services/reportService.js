@@ -8,4 +8,6 @@ export const reportService = {
   purchases: (params) => api.get("/reports/purchases", { params }),
   expenses: (params) => api.get("/reports/expenses", { params }),
   tailorProductivity: (params) => api.get("/reports/tailor-productivity", { params }),
+  alterationOrders: (params) => api.get("/reports/alteration-orders", { params }),
+  alterationRevenue: (params) => api.get("/reports/alteration-revenue", { params }),
 };
