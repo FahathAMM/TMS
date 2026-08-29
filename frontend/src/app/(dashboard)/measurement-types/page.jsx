@@ -1,57 +1,51 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import {
-  useMeasurementTypes, useCreateMeasurementType, useUpdateMeasurementType, useDeleteMeasurementType,
+  useMeasurementTypes, useCreateMeasurementType, useUpdateMeasurementType,
+  useUploadMeasurementTypeImage, useDeleteMeasurementType,
 } from "@/hooks/useMeasurementTypes";
 import { DataTable } from "@/components/shared/DataTable";
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { TextInput, ValidationError } from "@/components/forms/FormField";
 import { useAuthStore } from "@/store/authStore";
-import { Plus, Pencil, Trash2 } from "lucide-react";
-
-const defaultForm = { name: "", category: "", unit: "inches" };
+import { MeasurementTypeForm } from "./_components/MeasurementTypeForm";
+import { Plus, Pencil, Trash2, Ruler } from "lucide-react";
 
 export default function MeasurementTypesPage() {
   const { can } = useAuthStore();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState(defaultForm);
   const [errors, setErrors] = useState({});
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   const { data, isLoading } = useMeasurementTypes();
   const create = useCreateMeasurementType();
   const update = useUpdateMeasurementType();
+  const uploadImage = useUploadMeasurementTypeImage();
   const remove = useDeleteMeasurementType();
 
-  const grouped = useMemo(() => {
-    const groups = {};
-    for (const item of data ?? []) {
-      (groups[item.category] ??= []).push(item);
-    }
-    return groups;
-  }, [data]);
+  const submitting = create.isPending || update.isPending || uploadImage.isPending;
 
-  const f = (field) => (e) => setForm((p) => ({ ...p, [field]: e.target.value }));
+  const openCreate = () => { setEditing(null); setErrors({}); setOpen(true); };
+  const openEdit = (row) => { setEditing(row); setErrors({}); setOpen(true); };
 
-  const openCreate = () => { setEditing(null); setForm(defaultForm); setErrors({}); setOpen(true); };
-  const openEdit = (item) => {
-    setEditing(item);
-    setForm({ name: item.name, category: item.category, unit: item.unit });
-    setErrors({});
-    setOpen(true);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (payload, imageFile) => {
     setErrors({});
     try {
-      if (editing) await update.mutateAsync({ id: editing.id, data: form });
-      else await create.mutateAsync(form);
+      let type;
+      if (editing) {
+        type = (await update.mutateAsync({ id: editing.id, data: payload })).data.data;
+      } else {
+        type = (await create.mutateAsync(payload)).data.data;
+      }
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("image", imageFile);
+        await uploadImage.mutateAsync({ id: type.id, formData });
+      }
       setOpen(false);
     } catch (err) {
       setErrors(err.response?.data?.errors ?? {});
@@ -59,8 +53,16 @@ export default function MeasurementTypesPage() {
   };
 
   const columns = [
+    {
+      key: "image", header: "", render: (r) => (
+        <div className="w-10 h-10 rounded border overflow-hidden bg-muted/30 flex items-center justify-center">
+          {r.image_url ? <img src={r.image_url} alt={r.name} className="w-full h-full object-contain" /> : <Ruler className="h-4 w-4 text-muted-foreground" />}
+        </div>
+      ),
+    },
     { key: "name", header: "Name", render: (r) => <span className="font-medium">{r.name}</span> },
-    { key: "unit", header: "Unit", render: (r) => <span className="text-muted-foreground">{r.unit}</span> },
+    { key: "fields", header: "Points", render: (r) => <Badge variant="outline">{r.fields?.length ?? 0}</Badge> },
+    { key: "is_active", header: "Status", render: (r) => <Badge variant={r.is_active ? "default" : "secondary"}>{r.is_active ? "Active" : "Inactive"}</Badge> },
     {
       key: "actions", header: "Actions", render: (r) => (
         <div className="flex gap-1">
@@ -85,36 +87,18 @@ export default function MeasurementTypesPage() {
         )}
       </div>
 
-      <div className="space-y-6">
-        {Object.entries(grouped).map(([category, items]) => (
-          <div key={category}>
-            <div className="flex items-center gap-2 mb-2">
-              <h2 className="text-sm font-semibold">{category}</h2>
-              <Badge variant="outline">{items.length}</Badge>
-            </div>
-            <DataTable columns={columns} data={items} loading={isLoading} />
-          </div>
-        ))}
-        {!isLoading && Object.keys(grouped).length === 0 && (
-          <div className="text-center text-muted-foreground py-14 text-sm">No measurement types yet.</div>
-        )}
-      </div>
+      <DataTable columns={columns} data={data ?? []} loading={isLoading} />
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editing ? "Edit Measurement Type" : "Add Measurement Type"}</DialogTitle></DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <ValidationError errors={errors} />
-            <TextInput label="Name" value={form.name} onChange={f("name")} required
-              placeholder="e.g. Chest, Waist, Inseam" error={errors.name?.[0]} />
-            <TextInput label="Garment Category" value={form.category} onChange={f("category")} required
-              placeholder="e.g. Shirt, Suit Jacket, Trousers, Dress" error={errors.category?.[0]} />
-            <TextInput label="Unit" value={form.unit} onChange={f("unit")} placeholder="inches" error={errors.unit?.[0]} />
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-              <Button type="submit" disabled={create.isPending || update.isPending}>Save</Button>
-            </div>
-          </form>
+          <MeasurementTypeForm
+            initial={editing}
+            errors={errors}
+            submitting={submitting}
+            onSubmit={handleSubmit}
+            onCancel={() => setOpen(false)}
+          />
         </DialogContent>
       </Dialog>
 

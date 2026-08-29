@@ -6,6 +6,7 @@ import { useCustomer, useUpdateCustomer } from "@/hooks/useCustomers";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { CustomerForm } from "../../_components/CustomerForm";
 import { MeasurementsCard } from "../../_components/MeasurementsCard";
+import { AlterationHistoryCard } from "../../_components/AlterationHistoryCard";
 import { Loader2 } from "lucide-react";
 
 export default function EditCustomerPage() {
@@ -55,8 +56,9 @@ export default function EditCustomerPage() {
         errors={errors}
         submitLabel="Save Changes"
       />
-      <div className="mt-6 max-w-3xl">
+      <div className="mt-6 max-w-5xl space-y-6">
         <MeasurementsCard customerId={customer.id} />
+        <AlterationHistoryCard customerId={customer.id} />
       </div>
     </div>
   );
