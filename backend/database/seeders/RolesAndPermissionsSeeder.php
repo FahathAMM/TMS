@@ -47,6 +47,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'view expenses', 'create expenses',
             'view reports',
             'view garment_prices', 'create garment_prices', 'edit garment_prices', 'delete garment_prices',
+            'view alteration_types', 'create alteration_types', 'edit alteration_types', 'delete alteration_types',
+            'view alteration_orders', 'create alteration_orders', 'edit alteration_orders', 'delete alteration_orders',
+            'view alteration_board',
 
             // Accounting (admin-only — no staff sync below)
             'view accounting_accounts', 'view accounting_journal', 'view accounting_reports',
@@ -86,6 +89,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'view expenses', 'create expenses',
             'view reports',
             'view garment_prices', 'create garment_prices', 'edit garment_prices',
+            'view alteration_types', 'create alteration_types', 'edit alteration_types',
+            'view alteration_orders', 'create alteration_orders', 'edit alteration_orders',
+            'view alteration_board',
         ]);
     }
 }

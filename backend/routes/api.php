@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\AccountingController;
+use App\Http\Controllers\Api\AlterationOrderController;
+use App\Http\Controllers\Api\AlterationTypeController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BrandController;
 use App\Http\Controllers\Api\CategoryController;
@@ -92,8 +94,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // ─── Measurement Types (lookup) ────────────────────────────────────────────
 
     Route::middleware('permission:view measurement_types')->get('measurement-types', [MeasurementTypeController::class, 'index']);
+    Route::middleware('permission:view measurement_types')->get('measurement-types/{measurementType}', [MeasurementTypeController::class, 'show']);
     Route::middleware('permission:create measurement_types')->post('measurement-types', [MeasurementTypeController::class, 'store']);
     Route::middleware('permission:edit measurement_types')->put('measurement-types/{measurementType}', [MeasurementTypeController::class, 'update']);
+    Route::middleware('permission:edit measurement_types')->post('measurement-types/{measurementType}/image', [MeasurementTypeController::class, 'uploadImage']);
     Route::middleware('permission:delete measurement_types')->delete('measurement-types/{measurementType}', [MeasurementTypeController::class, 'destroy']);
 
     // ─── Tailors ────────────────────────────────────────────────────────────────
@@ -110,6 +114,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('permission:create garment_prices')->post('garment-prices', [GarmentPriceController::class, 'store']);
     Route::middleware('permission:edit garment_prices')->put('garment-prices/{garmentPrice}', [GarmentPriceController::class, 'update']);
     Route::middleware('permission:delete garment_prices')->delete('garment-prices/{garmentPrice}', [GarmentPriceController::class, 'destroy']);
+
+    // ─── Alteration Types Reference ────────────────────────────────────────────
+
+    Route::middleware('permission:view alteration_types')->get('alteration-types', [AlterationTypeController::class, 'index']);
+    Route::middleware('permission:create alteration_types')->post('alteration-types', [AlterationTypeController::class, 'store']);
+    Route::middleware('permission:edit alteration_types')->put('alteration-types/{alterationType}', [AlterationTypeController::class, 'update']);
+    Route::middleware('permission:delete alteration_types')->delete('alteration-types/{alterationType}', [AlterationTypeController::class, 'destroy']);
 
     // ─── Tailoring Orders ───────────────────────────────────────────────────────
 
@@ -128,6 +139,28 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('orders/{order}/notify',                                   [OrderController::class, 'notify']);
     });
     Route::middleware('permission:view tailoring_orders')->get('orders/{order}/notifications', [OrderController::class, 'notifications']);
+
+    // ─── Alteration Orders (standalone garment-intake module) ─────────────────
+
+    Route::middleware('permission:view alteration_orders')->group(function () {
+        Route::get('alteration-orders',                                              [AlterationOrderController::class, 'index']);
+        Route::get('alteration-orders/{alterationOrder}',                            [AlterationOrderController::class, 'show']);
+        Route::get('alteration-orders/{alterationOrder}/payments',                   [AlterationOrderController::class, 'payments']);
+        Route::get('alteration-orders/{alterationOrder}/notifications',              [AlterationOrderController::class, 'notifications']);
+    });
+    Route::middleware('permission:create alteration_orders')->post('alteration-orders', [AlterationOrderController::class, 'store']);
+    Route::middleware('permission:edit alteration_orders')->group(function () {
+        Route::post('alteration-orders/{alterationOrder}/garments',                                      [AlterationOrderController::class, 'storeGarment']);
+        Route::post('alteration-orders/{alterationOrder}/garments/{garment}/deliver',                     [AlterationOrderController::class, 'markGarmentDelivered']);
+        Route::post('alteration-orders/{alterationOrder}/garments/{garment}/photos',                      [AlterationOrderController::class, 'uploadPhoto']);
+        Route::post('alteration-orders/{alterationOrder}/garments/{garment}/tasks',                       [AlterationOrderController::class, 'storeTask']);
+        Route::post('alteration-orders/{alterationOrder}/garments/{garment}/tasks/{task}/advance-status',  [AlterationOrderController::class, 'advanceTaskStatus']);
+        Route::post('alteration-orders/{alterationOrder}/garments/{garment}/tasks/{task}/assign-tailor',   [AlterationOrderController::class, 'assignTailor']);
+        Route::post('alteration-orders/{alterationOrder}/payments',                                       [AlterationOrderController::class, 'storePayment']);
+        Route::post('alteration-orders/{alterationOrder}/complete',                                       [AlterationOrderController::class, 'complete']);
+        Route::post('alteration-orders/{alterationOrder}/cancel',                                         [AlterationOrderController::class, 'cancel']);
+        Route::post('alteration-orders/{alterationOrder}/notify',                                         [AlterationOrderController::class, 'notify']);
+    });
 
     // ─── Fabrics & Trims (Products) ────────────────────────────────────────────
 
@@ -193,5 +226,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('purchases',           [ReportController::class, 'purchases']);
         Route::get('expenses',            [ReportController::class, 'expenses']);
         Route::get('tailor-productivity', [ReportController::class, 'tailorProductivity']);
+        Route::get('alteration-orders',   [ReportController::class, 'alterationOrders']);
+        Route::get('alteration-revenue',  [ReportController::class, 'alterationRevenue']);
     });
 });

@@ -9,7 +9,7 @@ import { TableToolbar } from "@/components/shared/TableToolbar";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/authStore";
-import { Plus, Eye } from "lucide-react";
+import { Plus, Eye, Scissors } from "lucide-react";
 
 export default function OrdersPage() {
   const { can } = useAuthStore();
@@ -39,7 +39,10 @@ export default function OrdersPage() {
         search={search} onSearchChange={(v) => { setSearch(v); setPage(1); }}
         placeholder="Search by order # or customer..."
         action={can("create tailoring_orders") && (
-          <Button size="sm" asChild><Link href="/orders/create"><Plus />New Order</Link></Button>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" asChild><Link href="/alteration"><Scissors />Quick Alteration</Link></Button>
+            <Button size="sm" asChild><Link href="/orders/create"><Plus />New Order</Link></Button>
+          </div>
         )}
       />
       <DataTable columns={columns} data={data?.data ?? []} loading={isLoading} search={search} />

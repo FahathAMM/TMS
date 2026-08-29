@@ -152,17 +152,25 @@ class FabricCatalogSeeder extends Seeder
             ['sku' => 'TRM-HKE-TAPE',    'name' => 'Hook & Eye Tape',                                'cat' => 'elastic-tape','brand' => null,        'unit' => 'meter', 'cost' => 1.00, 'sell' => 2.00,  'stock' => 80],
         ];
 
-        // The two products repurposed in place (originally referenced by a
-        // sample order's materials) — assign them onto real catalogue rows.
-        $repurposed = ['FAB-WOL-NVY' => 46, 'TRM-INT-MED' => 51];
+        // Any products still around after the purge only survived because a
+        // RESTRICT-on-delete FK (order_item_materials/sale_items/stock_adjustments
+        // on a legacy sample order) still points at them — repurpose them in
+        // place, one per catalogue row, so their old category/brand becomes
+        // unreferenced and safe to delete below. On a fresh DB there are none
+        // of these, and every row below is simply created fresh by SKU.
+        $legacyIds = Product::pluck('id')->values();
+        $legacyIndex = 0;
+        $nextLegacyId = function () use ($legacyIds, &$legacyIndex) {
+            return $legacyIndex < $legacyIds->count() ? $legacyIds[$legacyIndex++] : null;
+        };
 
         foreach ($fabrics as $row) {
-            $this->upsertProduct($row, $categories[$row['cat']]->id, null, 'meter', $repurposed[$row['sku']] ?? null);
+            $this->upsertProduct($row, $categories[$row['cat']]->id, null, 'meter', $nextLegacyId());
         }
 
         foreach ($trims as $row) {
             $brandId = $row['brand'] ? ($brands[$row['brand']] ?? null) : null;
-            $this->upsertProduct($row, $categories[$row['cat']]->id, $brandId, $row['unit'], $repurposed[$row['sku']] ?? null);
+            $this->upsertProduct($row, $categories[$row['cat']]->id, $brandId, $row['unit'], $nextLegacyId());
         }
     }
 
@@ -182,8 +190,9 @@ class FabricCatalogSeeder extends Seeder
             'unit_of_measure'     => $unit,
         ];
 
-        if ($forceId) {
-            $product = Product::find($forceId);
+        $product = $forceId ? Product::find($forceId) : null;
+
+        if ($product) {
             $product->fill(array_merge($attrs, ['sku' => $row['sku']]))->save();
             return;
         }

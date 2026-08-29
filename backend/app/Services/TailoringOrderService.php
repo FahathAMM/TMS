@@ -31,8 +31,9 @@ class TailoringOrderService
      *   'items' => [
      *     [
      *       'garment_type', 'fabric_source', 'product_id'?, 'quantity', 'unit_price',
-     *       'discount'?, 'style_specifications'?,
-     *       'materials' => [['product_id', 'quantity_required'], ...] // when fabric_source = in_house
+     *       'discount'?, 'style_specifications'?, 'measurement_type_id'?,
+     *       'materials' => [['product_id', 'quantity_required'], ...], // when fabric_source = in_house
+     *       'measurements' => [['measurement_field_id', 'value'?], ...],
      *     ], ...
      *   ],
      *   'initial_payment'? => ['amount', 'payment_method'?, 'payment_type'],
@@ -95,6 +96,7 @@ class TailoringOrderService
                     'product_id'            => $itemData['product_id'] ?? null,
                     'product_name'          => $itemData['garment_type'],
                     'garment_type'          => $itemData['garment_type'],
+                    'measurement_type_id'   => $itemData['measurement_type_id'] ?? null,
                     'fabric_source'         => $itemData['fabric_source'],
                     'style_specifications'  => $itemData['style_specifications'] ?? null,
                     'production_status'     => 'pending',
@@ -113,13 +115,20 @@ class TailoringOrderService
                         ]);
                     }
                 }
+
+                foreach ($itemData['measurements'] ?? [] as $measurement) {
+                    $item->measurements()->create([
+                        'measurement_field_id' => $measurement['measurement_field_id'],
+                        'value'                => $measurement['value'] ?? null,
+                    ]);
+                }
             }
 
             if (!empty($data['initial_payment']['amount'])) {
                 $this->recordPayment($order, $data['initial_payment'], $userId);
             }
 
-            return $order->load(['customer', 'items.materials', 'payments']);
+            return $order->load(['customer', 'items.materials', 'items.measurementType', 'items.measurements.measurementField', 'payments']);
         });
     }
 
