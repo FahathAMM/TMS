@@ -11,6 +11,7 @@ export function StatusBadge({ status }) {
 
     // Tailoring order status
     pending: "outline",
+    in_progress: "default",
     quoted: "secondary",
     deposit_paid: "secondary",
     in_production: "default",
@@ -50,6 +51,7 @@ export function StatusBadge({ status }) {
     false: "Inactive",
 
     pending: "Pending",
+    in_progress: "In Progress",
     quoted: "Quoted",
     deposit_paid: "Deposit Paid",
     in_production: "In Production",

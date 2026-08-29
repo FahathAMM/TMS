@@ -6,6 +6,7 @@ import {
   Star, Globe, Bell, HelpCircle, BookOpen, PieChart, Activity,
   Database, Lock, Eye, Edit, Trash2, Plus, Search, Filter, Download,
   Upload, ArrowLeft, ArrowRight, Check, X, Menu, Percent,
+  Scissors, Shirt, KanbanSquare, Receipt,
 } from "lucide-react";
 
 export const iconMap = {
@@ -59,6 +60,10 @@ export const iconMap = {
   X,
   Menu,
   Percent,
+  Scissors,
+  Shirt,
+  KanbanSquare,
+  Receipt,
 };
 
 export const iconNames = Object.keys(iconMap).sort();

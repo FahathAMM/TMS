@@ -51,3 +51,17 @@ export function useTailorProductivityReport(params = {}) {
     queryFn: () => reportService.tailorProductivity(params).then((r) => r.data.data),
   });
 }
+
+export function useAlterationOrdersReport(params = {}) {
+  return useQuery({
+    queryKey: ["reports", "alteration-orders", params],
+    queryFn: () => reportService.alterationOrders(params).then((r) => r.data.data),
+  });
+}
+
+export function useAlterationRevenueReport(params = {}) {
+  return useQuery({
+    queryKey: ["reports", "alteration-revenue", params],
+    queryFn: () => reportService.alterationRevenue(params).then((r) => r.data.data),
+  });
+}

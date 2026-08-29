@@ -11,6 +11,14 @@ export function useMeasurementTypes(params = {}) {
   });
 }
 
+export function useMeasurementType(id) {
+  return useQuery({
+    queryKey: ["measurement-types", "one", id],
+    queryFn: () => measurementTypeService.getOne(id).then((r) => r.data.data),
+    enabled: !!id,
+  });
+}
+
 export function useCreateMeasurementType() {
   const qc = useQueryClient();
   return useMutation({
@@ -32,6 +40,17 @@ export function useUpdateMeasurementType() {
       toast.success("Measurement type updated");
     },
     onError: (err) => toast.error(err.response?.data?.message ?? "Failed to update measurement type"),
+  });
+}
+
+export function useUploadMeasurementTypeImage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, formData }) => measurementTypeService.uploadImage(id, formData),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["measurement-types"] });
+    },
+    onError: (err) => toast.error(err.response?.data?.message ?? "Failed to upload image"),
   });
 }
 
