@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Administration;
 
 use App\Http\Controllers\Controller;
-use App\Models\Menu;
+use App\Models\Administration\Menu;
 use Illuminate\Http\JsonResponse;
 use Spatie\Permission\Models\Permission;
 

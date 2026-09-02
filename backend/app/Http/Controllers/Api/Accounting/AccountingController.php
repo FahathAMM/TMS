@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Accounting;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AccountResource;
 use App\Http\Resources\JournalEntryResource;
-use App\Models\Account;
-use App\Models\JournalEntry;
+use App\Models\Accounting\Account;
+use App\Models\Accounting\JournalEntry;
 use App\Services\AccountingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
