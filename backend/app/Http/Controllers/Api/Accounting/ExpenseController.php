@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Accounting;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Expense\StoreExpenseRequest;
 use App\Http\Resources\ExpenseResource;
-use App\Models\Expense;
+use App\Models\Accounting\Expense;
+use App\Services\AuthUser;
 use App\Services\ExpenseService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -48,7 +49,7 @@ class ExpenseController extends Controller
 
     public function store(StoreExpenseRequest $request): JsonResponse
     {
-        $expense = $this->expenseService->record($request->validated(), $request->user()?->id);
+        $expense = $this->expenseService->record($request->validated(), AuthUser::id());
 
         return response()->json([
             'message' => 'Expense recorded successfully',

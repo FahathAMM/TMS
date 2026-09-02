@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Administration;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Menu\StoreMenuRequest;
 use App\Http\Requests\Menu\UpdateMenuRequest;
 use App\Http\Resources\MenuResource;
-use App\Models\Menu;
+use App\Models\Administration\Menu;
 use App\Repositories\MenuRepo;
+use App\Services\AuthUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -49,9 +50,9 @@ class MenuController extends Controller
     /**
      * Returns the navigation tree for the authenticated user (filtered by permissions).
      */
-    public function navigation(Request $request): JsonResponse
+    public function navigation(): JsonResponse
     {
-        $tree = $this->repo->getNavigation($request->user());
+        $tree = $this->repo->getNavigation(AuthUser::user());
 
         return response()->json([
             'data' => MenuResource::collection($tree),
