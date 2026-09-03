@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Order;
+use App\Models\Tailoring\Order;
 use Illuminate\Console\Command;
 
 class InspectOrder1 extends Command
