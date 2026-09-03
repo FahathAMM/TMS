@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Inventory;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Brand\StoreBrandRequest;
 use App\Http\Requests\Brand\UpdateBrandRequest;
 use App\Http\Resources\BrandResource;
-use App\Models\Brand;
+use App\Models\Inventory\Brand;
 use App\Repositories\BrandRepo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

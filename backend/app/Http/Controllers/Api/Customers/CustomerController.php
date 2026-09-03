@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Customers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\StoreCustomerRequest;
 use App\Http\Requests\Customer\UpdateCustomerRequest;
 use App\Http\Resources\CustomerResource;
-use App\Models\Customer;
+use App\Models\Customers\Customer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

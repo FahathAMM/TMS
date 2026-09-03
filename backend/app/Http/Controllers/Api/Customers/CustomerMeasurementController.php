@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Customers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CustomerMeasurement\UpdateCustomerMeasurementsRequest;
 use App\Http\Resources\CustomerMeasurementResource;
-use App\Models\Customer;
+use App\Models\Customers\Customer;
 use Illuminate\Http\JsonResponse;
 
 class CustomerMeasurementController extends Controller
