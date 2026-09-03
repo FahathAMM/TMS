@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Tailoring;
 
+use App\Models\Administration\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
