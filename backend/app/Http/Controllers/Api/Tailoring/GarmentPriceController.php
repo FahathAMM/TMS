@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Tailoring;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GarmentPrice\StoreGarmentPriceRequest;
 use App\Http\Requests\GarmentPrice\UpdateGarmentPriceRequest;
 use App\Http\Resources\GarmentPriceResource;
-use App\Models\GarmentPrice;
+use App\Models\Tailoring\GarmentPrice;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

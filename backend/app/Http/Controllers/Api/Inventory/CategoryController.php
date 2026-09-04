@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Inventory;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Category\StoreCategoryRequest;
 use App\Http\Requests\Category\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
-use App\Models\Category;
+use App\Models\Inventory\Category;
 use App\Repositories\CategoryRepo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

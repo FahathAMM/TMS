@@ -1,26 +1,48 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Tailoring;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MeasurementType\StoreMeasurementTypeRequest;
 use App\Http\Requests\MeasurementType\UpdateMeasurementTypeRequest;
 use App\Http\Requests\MeasurementType\UploadMeasurementTypeImageRequest;
 use App\Http\Resources\MeasurementTypeResource;
-use App\Models\MeasurementType;
+use App\Models\Tailoring\MeasurementType;
+use App\Repositories\MeasurementTypeRepo;
 use App\Services\MeasurementTypeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MeasurementTypeController extends Controller
 {
-    public function __construct(private readonly MeasurementTypeService $service) {}
+    protected string $modelName = 'Measurement Type';
+    protected MeasurementType $model;
+    protected MeasurementTypeRepo $repo;
+
+    public function __construct(
+        MeasurementType $model,
+        MeasurementTypeRepo $repo,
+        private readonly MeasurementTypeService $service,
+    ) {
+        $this->model = $model;
+        $this->repo  = $repo;
+    }
 
     public function index(Request $request): JsonResponse
     {
-        $query = MeasurementType::query()->with('fields')->orderBy('name');
+        $types = $this->repo->getData($request);
 
-        return response()->json(['data' => MeasurementTypeResource::collection($query->get())]);
+        if ($request->boolean('all')) {
+            return response()->json(['data' => $types]);
+        }
+
+        // Shape matches UserController@index: the raw paginator under
+        // "record", read by ServerDataTable as res.data.record.
+        return response()->json([
+            'record'  => $types,
+            'message' => "{$this->modelName}s retrieved successfully",
+            'status'  => true,
+        ]);
     }
 
     public function show(MeasurementType $measurementType): JsonResponse

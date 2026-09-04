@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Tailoring;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AlterationType\StoreAlterationTypeRequest;
 use App\Http\Requests\AlterationType\UpdateAlterationTypeRequest;
 use App\Http\Resources\AlterationTypeResource;
-use App\Models\AlterationType;
+use App\Models\Tailoring\AlterationType;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
