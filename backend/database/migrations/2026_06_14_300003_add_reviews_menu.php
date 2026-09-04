@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Menu;
+use App\Models\Administration\Menu;
 use Illuminate\Database\Migrations\Migration;
 use Spatie\Permission\Models\Role;
 

@@ -1,12 +1,12 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\Inventory;
 
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
-use App\Models\Brand;
-use App\Models\Category;
-use App\Models\Product;
+use App\Models\Inventory\Brand;
+use App\Models\Inventory\Category;
+use App\Models\Inventory\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 

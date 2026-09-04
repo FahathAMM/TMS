@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Menu;
+use App\Models\Administration\Menu;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
