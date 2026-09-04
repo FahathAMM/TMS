@@ -2,8 +2,8 @@
 
 namespace App\Repositories;
 
-use App\Models\Supplier;
-use App\Models\SupplierContact;
+use App\Models\Inventory\Supplier;
+use App\Models\Inventory\SupplierContact;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

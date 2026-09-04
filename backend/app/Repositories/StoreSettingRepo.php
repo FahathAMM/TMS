@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Models\StoreSetting;
+use App\Models\Administration\StoreSetting;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;

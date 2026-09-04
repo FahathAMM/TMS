@@ -2,9 +2,8 @@
 
 namespace App\Repositories\Concerns;
 
-use App\Models\Product;
-use App\Models\ProductVariant;
-use App\Models\StockMovement;
+use App\Models\Inventory\Product;
+use App\Models\Inventory\StockMovement;
 
 trait RecordsStockMovements
 {
@@ -16,7 +15,6 @@ trait RecordsStockMovements
      */
     protected function recordMovement(
         int     $productId,
-        ?int    $variantId,
         string  $type,
         float   $quantity,
         ?float  $costPrice     = null,
@@ -28,23 +26,19 @@ trait RecordsStockMovements
     ): StockMovement {
         $isInbound = in_array($type, StockMovement::INBOUND_TYPES);
 
-        $stockHolder = $variantId
-            ? ProductVariant::lockForUpdate()->findOrFail($variantId)
-            : Product::lockForUpdate()->findOrFail($productId);
+        $product = Product::lockForUpdate()->findOrFail($productId);
 
-        $before = (float) $stockHolder->stock_quantity;
+        $before = (float) $product->stock_quantity;
         $after  = $isInbound ? $before + $quantity : $before - $quantity;
 
         if ($after < 0) {
-            $label = $variantId ? "variant #{$variantId}" : "product #{$productId}";
             throw new \RuntimeException(
-                "Insufficient stock for {$label}. Available: {$before}, requested: {$quantity}."
+                "Insufficient stock for product #{$productId}. Available: {$before}, requested: {$quantity}."
             );
         }
 
         $movement = StockMovement::create([
             'product_id'      => $productId,
-            'variant_id'      => $variantId,
             'type'            => $type,
             'quantity'        => $quantity,
             'quantity_before' => $before,
@@ -57,13 +51,7 @@ trait RecordsStockMovements
             'created_by'      => $createdBy,
         ]);
 
-        $stockHolder->update(['stock_quantity' => $after]);
-
-        // Keep parent product total in sync when a variant moved
-        if ($variantId) {
-            $total = ProductVariant::where('product_id', $productId)->sum('stock_quantity');
-            Product::where('id', $productId)->update(['stock_quantity' => $total]);
-        }
+        $product->update(['stock_quantity' => $after]);
 
         return $movement;
     }

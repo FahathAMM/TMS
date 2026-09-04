@@ -2,8 +2,8 @@
 
 namespace App\Repositories;
 
-use App\Models\Product;
-use App\Models\StockMovement;
+use App\Models\Inventory\Product;
+use App\Models\Inventory\StockMovement;
 use App\Repositories\Concerns\RecordsStockMovements;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
@@ -78,7 +78,6 @@ class StockMovementRepo
         return \Illuminate\Support\Facades\DB::transaction(
             fn() => $this->recordMovement(
                 productId:     (int) $data['product_id'],
-                variantId:     isset($data['variant_id']) ? (int) $data['variant_id'] : null,
                 type:          $type,
                 quantity:      (float) $data['quantity'],
                 referenceType: 'adjustment',

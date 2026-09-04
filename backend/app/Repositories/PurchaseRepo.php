@@ -2,11 +2,10 @@
 
 namespace App\Repositories;
 
-use App\Models\Product;
-use App\Models\ProductVariant;
-use App\Models\Purchase;
-use App\Models\PurchaseItem;
-use App\Models\PurchasePayment;
+use App\Models\Inventory\Product;
+use App\Models\Inventory\Purchase;
+use App\Models\Inventory\PurchaseItem;
+use App\Models\Inventory\PurchasePayment;
 use App\Repositories\Concerns\RecordsStockMovements;
 use App\Repositories\Concerns\UpdatesSupplierLedger;
 use App\Services\AccountingService;
@@ -168,7 +167,6 @@ class PurchaseRepo
 
                 $this->recordMovement(
                     productId:     (int) $item->product_id,
-                    variantId:     $item->variant_id ? (int) $item->variant_id : null,
                     type:          'purchase_in',
                     quantity:      $qty,
                     costPrice:     (float) $item->cost_price,
@@ -274,16 +272,12 @@ class PurchaseRepo
     {
         foreach ($items as $item) {
             $product    = Product::find($item['product_id']);
-            $variantId  = $item['variant_id'] ?? null;
-            $productSku = $variantId
-                ? ProductVariant::find($variantId)?->sku
-                : $product?->sku;
+            $productSku = $product?->sku;
 
             $lineSubtotal = (float) $item['cost_price'] * (float) $item['quantity_ordered'];
 
             $purchase->items()->create([
                 'product_id'       => $item['product_id'],
-                'variant_id'       => $variantId,
                 'product_name'     => $product?->name ?? 'Unknown',
                 'product_sku'      => $productSku,
                 'quantity_ordered' => $item['quantity_ordered'],
