@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Models\Brand;
+use App\Models\Inventory\Brand;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;

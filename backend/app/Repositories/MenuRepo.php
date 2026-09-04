@@ -2,8 +2,8 @@
 
 namespace App\Repositories;
 
-use App\Models\Menu;
-use App\Models\User;
+use App\Models\Administration\Menu;
+use App\Models\Administration\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -18,12 +18,16 @@ class MenuRepo
 
     public function getData(Request $request): LengthAwarePaginator
     {
+        $sortable = ['name', 'route_name', 'sort_order', 'created_at'];
+        $sort = in_array($request->sort_field, $sortable) ? $request->sort_field : 'sort_order';
+        $dir  = $request->sort_direction === 'desc' ? 'desc' : 'asc';
+
         return $this->model
             ->with('parent')
             ->when($request->search, fn ($q) => $q->where('name', 'like', "%{$request->search}%"))
-            ->orderBy('sort_order')
+            ->orderBy($sort, $dir)
             ->orderBy('id')
-            ->paginate($request->per_page ?? 50);
+            ->paginate(min($request->perPage ?? 50, 100));
     }
 
     public function getFlat(): Collection
