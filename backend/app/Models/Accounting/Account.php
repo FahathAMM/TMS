@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Accounting;
 
 use App\Enums\AccountType;
 use Illuminate\Database\Eloquent\Model;

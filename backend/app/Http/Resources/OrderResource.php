@@ -24,6 +24,7 @@ class OrderResource extends JsonResource
             'paid_amount'              => $this->paid_amount,
             'balance_due'              => $this->balance_due,
             'expected_delivery_date'   => $this->expected_delivery_date?->toDateString(),
+            'is_urgent'                => (bool) $this->is_urgent,
             'notes'                    => $this->notes,
             'customer'                 => $this->whenLoaded('customer', fn () => [
                 'id'      => $this->customer?->id,

@@ -24,7 +24,6 @@ class StockMovementResource extends JsonResource
         return [
             'id'              => $this->id,
             'product_id'      => $this->product_id,
-            'variant_id'      => $this->variant_id,
             'type'            => $this->type,
             'type_label'      => self::$TYPE_LABELS[$this->type] ?? $this->type,
             'is_inbound'      => $this->isInbound(),
