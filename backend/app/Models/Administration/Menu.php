@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Administration;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,7 +31,7 @@ class Menu extends Model
 
             foreach (['view', 'create', 'edit', 'delete'] as $action) {
                 Permission::firstOrCreate([
-                    'name'       => "{$action} {$menu->slug}",
+                    'name'       => "{$menu->slug}-{$action}",
                     'guard_name' => 'web',
                 ]);
             }
@@ -42,7 +42,7 @@ class Menu extends Model
         static::deleting(function (Menu $menu) {
             if (empty($menu->route_name)) return;
 
-            Permission::where('name', 'like', "% {$menu->slug}")->delete();
+            Permission::where('name', 'like', "{$menu->slug}-%")->delete();
             app(PermissionRegistrar::class)->forgetCachedPermissions();
         });
     }
