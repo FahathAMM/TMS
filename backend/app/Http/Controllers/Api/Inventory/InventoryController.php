@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Inventory;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Inventory\AdjustStockRequest;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\StockAdjustmentResource;
+use App\Services\AuthUser;
 use App\Services\InventoryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -31,7 +32,7 @@ class InventoryController extends Controller
 
     public function adjust(AdjustStockRequest $request): JsonResponse
     {
-        $adjustment = $this->inventoryService->adjust($request->validated(), $request->user()->id);
+        $adjustment = $this->inventoryService->adjust($request->validated(), AuthUser::id());
 
         return response()->json([
             'message' => 'Stock adjusted successfully',

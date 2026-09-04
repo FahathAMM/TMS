@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Inventory;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\StockMovementResource;
-use App\Models\Product;
-use App\Models\StockMovement;
+use App\Models\Inventory\Product;
+use App\Models\Inventory\StockMovement;
 use App\Repositories\StockMovementRepo;
+use App\Services\AuthUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -61,7 +62,7 @@ class StockMovementController extends Controller
             'notes'      => 'nullable|string|max:255',
         ]);
 
-        $movement = $this->repo->adjust($request->validated(), $request->user()->id);
+        $movement = $this->repo->adjust($request->validated(), AuthUser::id());
 
         return response()->json([
             'message' => 'Stock adjusted successfully',

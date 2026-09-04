@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Inventory;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Supplier\StoreSupplierContactRequest;
@@ -9,8 +9,8 @@ use App\Http\Requests\Supplier\UpdateSupplierRequest;
 use App\Http\Resources\SupplierContactResource;
 use App\Http\Resources\SupplierLedgerEntryResource;
 use App\Http\Resources\SupplierResource;
-use App\Models\Supplier;
-use App\Models\SupplierContact;
+use App\Models\Inventory\Supplier;
+use App\Models\Inventory\SupplierContact;
 use App\Repositories\SupplierRepo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

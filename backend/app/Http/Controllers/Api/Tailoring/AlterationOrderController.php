@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Tailoring;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AlterationOrder\AdvanceTaskStatusRequest;
@@ -18,10 +18,11 @@ use App\Http\Resources\AlterationOrderPaymentResource;
 use App\Http\Resources\AlterationOrderResource;
 use App\Http\Resources\AlterationTaskAssignmentResource;
 use App\Http\Resources\AlterationTaskResource;
-use App\Models\AlterationGarment;
-use App\Models\AlterationOrder;
-use App\Models\AlterationTask;
+use App\Models\Tailoring\AlterationGarment;
+use App\Models\Tailoring\AlterationOrder;
+use App\Models\Tailoring\AlterationTask;
 use App\Services\AlterationOrderService;
+use App\Services\AuthUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -66,7 +67,7 @@ class AlterationOrderController extends Controller
 
     public function store(StoreAlterationOrderRequest $request): JsonResponse
     {
-        $order = $this->service->createOrder($request->validated(), $request->user()?->id);
+        $order = $this->service->createOrder($request->validated(), AuthUser::id());
 
         return response()->json([
             'message' => 'Alteration order received successfully',
@@ -93,7 +94,7 @@ class AlterationOrderController extends Controller
 
     public function storeGarment(StoreGarmentRequest $request, AlterationOrder $alterationOrder): JsonResponse
     {
-        $garment = $this->service->addGarment($alterationOrder, $request->validated(), $request->user()?->id);
+        $garment = $this->service->addGarment($alterationOrder, $request->validated(), AuthUser::id());
 
         return response()->json([
             'message' => 'Garment received successfully',
@@ -105,7 +106,7 @@ class AlterationOrderController extends Controller
     {
         $this->authorizeGarment($alterationOrder, $garment);
 
-        $garment = $this->service->markGarmentDelivered($garment, request()->user()?->id);
+        $garment = $this->service->markGarmentDelivered($garment, AuthUser::id());
 
         return response()->json([
             'message' => 'Garment marked as delivered',
@@ -119,7 +120,7 @@ class AlterationOrderController extends Controller
     {
         $this->authorizeGarment($alterationOrder, $garment);
 
-        $task = $this->service->addTask($garment, $request->validated(), $request->user()?->id);
+        $task = $this->service->addTask($garment, $request->validated(), AuthUser::id());
 
         return response()->json([
             'message' => 'Task added successfully',
@@ -131,7 +132,7 @@ class AlterationOrderController extends Controller
     {
         $this->authorizeTask($alterationOrder, $garment, $task);
 
-        $task = $this->service->advanceTaskStatus($task, $request->validated('status'), $request->user()?->id, $request->get('notes'));
+        $task = $this->service->advanceTaskStatus($task, $request->validated('status'), AuthUser::id(), $request->get('notes'));
 
         return response()->json([
             'message' => 'Task status updated',
@@ -157,7 +158,7 @@ class AlterationOrderController extends Controller
     {
         $this->authorizeGarment($alterationOrder, $garment);
 
-        $photo = $this->service->uploadGarmentPhoto($garment, $request->file('file'), $request->validated('type'), $request->user()?->id);
+        $photo = $this->service->uploadGarmentPhoto($garment, $request->file('file'), $request->validated('type'), AuthUser::id());
 
         return response()->json([
             'message' => 'Photo uploaded successfully',
@@ -174,7 +175,7 @@ class AlterationOrderController extends Controller
 
     public function storePayment(RecordPaymentRequest $request, AlterationOrder $alterationOrder): JsonResponse
     {
-        $payment = $this->service->recordPayment($alterationOrder, $request->validated(), $request->user()?->id);
+        $payment = $this->service->recordPayment($alterationOrder, $request->validated(), AuthUser::id());
 
         return response()->json([
             'message' => 'Payment recorded successfully',
@@ -186,7 +187,7 @@ class AlterationOrderController extends Controller
 
     public function complete(AlterationOrder $alterationOrder): JsonResponse
     {
-        $order = $this->service->completeOrder($alterationOrder, request()->user()?->id);
+        $order = $this->service->completeOrder($alterationOrder, AuthUser::id());
 
         return response()->json([
             'message' => 'Alteration order completed successfully',
@@ -196,7 +197,7 @@ class AlterationOrderController extends Controller
 
     public function cancel(CancelOrderRequest $request, AlterationOrder $alterationOrder): JsonResponse
     {
-        $order = $this->service->cancelOrder($alterationOrder, $request->get('reason'), $request->user()?->id);
+        $order = $this->service->cancelOrder($alterationOrder, $request->get('reason'), AuthUser::id());
 
         return response()->json([
             'message' => 'Alteration order cancelled',
