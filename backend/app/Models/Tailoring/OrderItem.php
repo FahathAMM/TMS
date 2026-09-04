@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Tailoring;
 
+use App\Models\Inventory\Product;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,7 +11,7 @@ use Illuminate\Support\Str;
 class OrderItem extends Model
 {
     protected $fillable = [
-        'order_id', 'product_id', 'variant_id',
+        'order_id', 'product_id',
         'product_name', 'product_sku', 'product_image',
         'garment_type', 'measurement_type_id', 'fabric_source', 'style_specifications',
         'production_status', 'job_card_number', 'qc_notes', 'qc_passed_at',
@@ -46,10 +47,6 @@ class OrderItem extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function variant(): BelongsTo
-    {
-        return $this->belongsTo(ProductVariant::class, 'variant_id');
-    }
 
     public function materials(): HasMany
     {

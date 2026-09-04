@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Tailoring;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,6 +12,8 @@ class MeasurementType extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    protected $appends = ['image_url'];
 
     public function fields(): HasMany
     {

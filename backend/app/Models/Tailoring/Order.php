@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Tailoring;
 
+use App\Models\Customers\Customer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class Order extends Model
 {
     protected $fillable = [
         'customer_id', 'order_number', 'order_type', 'status',
-        'subtotal', 'discount_amount', 'tax_amount', 'shipping_amount', 'total_amount',
-        'deposit_amount', 'expected_delivery_date',
+        'subtotal', 'discount_amount', 'tax_amount', 'total_amount',
+        'deposit_amount', 'expected_delivery_date', 'is_urgent',
         'payment_method', 'payment_status',
-        'shipping_name', 'shipping_phone', 'shipping_email',
-        'shipping_address', 'shipping_city', 'shipping_zip',
         'notes',
     ];
 
@@ -22,11 +22,13 @@ class Order extends Model
         'subtotal'         => 'float',
         'discount_amount'  => 'float',
         'tax_amount'       => 'float',
-        'shipping_amount'  => 'float',
         'total_amount'     => 'float',
         'deposit_amount'   => 'float',
         'expected_delivery_date' => 'date',
+        'is_urgent'        => 'boolean',
     ];
+
+    protected $appends = ['paid_amount', 'balance_due'];
 
     protected static function boot()
     {
@@ -34,8 +36,29 @@ class Order extends Model
 
         static::creating(function (Order $order) {
             if (empty($order->order_number)) {
-                $order->order_number = 'ORD-' . strtoupper(uniqid());
+                $order->order_number = static::generateOrderNumber();
             }
+        });
+    }
+
+    /**
+     * ORD-YYYYMMDD-NNNN, with the sequence resetting to 0001 each day.
+     * Locks the day's rows for the duration of the surrounding transaction
+     * so concurrent creates on the same day don't collide.
+     */
+    public static function generateOrderNumber(): string
+    {
+        $prefix = 'ORD-' . now()->format('Ymd') . '-';
+
+        return DB::transaction(function () use ($prefix) {
+            $lastNumber = static::where('order_number', 'like', $prefix . '%')
+                ->lockForUpdate()
+                ->orderByDesc('order_number')
+                ->value('order_number');
+
+            $nextSequence = $lastNumber ? ((int) substr($lastNumber, strlen($prefix))) + 1 : 1;
+
+            return $prefix . str_pad((string) $nextSequence, 4, '0', STR_PAD_LEFT);
         });
     }
 
