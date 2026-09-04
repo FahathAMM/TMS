@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Account;
-use App\Models\JournalEntry;
+use App\Models\Accounting\Account;
+use App\Models\Accounting\JournalEntry;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 

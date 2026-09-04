@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Expense;
+use App\Models\Accounting\Expense;
 use Illuminate\Support\Facades\DB;
 
 class ExpenseService

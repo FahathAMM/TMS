@@ -2,15 +2,15 @@
 
 namespace App\Services;
 
-use App\Models\AlterationGarment;
-use App\Models\AlterationGarmentPhoto;
-use App\Models\AlterationOrder;
-use App\Models\AlterationOrderPayment;
-use App\Models\AlterationStatusHistory;
-use App\Models\AlterationTask;
-use App\Models\AlterationTaskAssignment;
-use App\Models\AlterationType;
-use App\Models\Customer;
+use App\Models\Tailoring\AlterationGarment;
+use App\Models\Tailoring\AlterationGarmentPhoto;
+use App\Models\Tailoring\AlterationOrder;
+use App\Models\Tailoring\AlterationOrderPayment;
+use App\Models\Tailoring\AlterationStatusHistory;
+use App\Models\Tailoring\AlterationTask;
+use App\Models\Tailoring\AlterationTaskAssignment;
+use App\Models\Tailoring\AlterationType;
+use App\Models\Customers\Customer;
 use App\Notifications\AlterationOrderNotification;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;

@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Eloquent;
 
-use App\Models\Product;
+use App\Models\Inventory\Product;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -140,7 +140,7 @@ class ProductRepository implements ProductRepositoryInterface
         $query = Product::with(['category', 'brand']);
 
         if ($includeDescendants) {
-            $category = \App\Models\Category::find($categoryId);
+            $category = \App\Models\Inventory\Category::find($categoryId);
             if ($category) {
                 $descendantIds = $category->getDescendants()->pluck('id')->push($categoryId);
                 $query->whereIn('category_id', $descendantIds);

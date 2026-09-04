@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\User;
+use App\Http\Requests\Auth\UpdateProfileRequest;
+use App\Models\Administration\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\PersonalAccessToken;
 
@@ -38,9 +40,20 @@ class AuthService
         }
     }
 
-    public function updateProfile(User $user, array $data): User
+    public function updateProfile(User $user, UpdateProfileRequest $request): User
     {
+        $data = $request->validated();
+        unset($data['avatar']);
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            $user->imageUpload('avatars', $user, $request->file('avatar'), 'avatar');
+        }
+
         $user->update($data);
+
         return $user->fresh();
     }
 
