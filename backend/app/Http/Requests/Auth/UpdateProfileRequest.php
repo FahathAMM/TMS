@@ -10,9 +10,13 @@ class UpdateProfileRequest extends FormRequest
 
     public function rules(): array
     {
+        $id = $this->user()?->id;
+
         return [
-            'name' => 'sometimes|string|max:255',
-            'phone' => 'nullable|string|max:20',
+            'name'   => 'sometimes|string|max:255',
+            'email'  => "sometimes|email|unique:users,email,{$id}",
+            'phone'  => 'nullable|string|max:20',
+            'avatar' => 'sometimes|nullable|image|max:2048',
         ];
     }
 }

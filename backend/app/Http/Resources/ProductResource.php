@@ -34,8 +34,7 @@ class ProductResource extends JsonResource
             'is_low_stock'        => $this->isLowStock(),
 
             // Physical
-            'image'               => $this->image_url
-                ?? ($this->relationLoaded('media') ? $this->media->first()?->file_url : null),
+            'image'               => $this->image_url,
             'weight'              => $this->weight ? (float) $this->weight : null,
             'weight_unit'         => $this->weight_unit,
             'length'              => $this->length ? (float) $this->length : null,
@@ -54,13 +53,6 @@ class ProductResource extends JsonResource
             'brand_id'            => $this->brand_id,
             'category'            => new CategoryResource($this->whenLoaded('category')),
             'brand'               => new BrandResource($this->whenLoaded('brand')),
-            'tags'                => TagResource::collection($this->whenLoaded('tags')),
-            'attributes'          => AttributeResource::collection($this->whenLoaded('attributes')),
-            'media'               => ProductMediaResource::collection($this->whenLoaded('media')),
-            'seo'                 => new ProductSeoResource($this->whenLoaded('seo')),
-            'specifications'      => ProductSpecificationResource::collection($this->whenLoaded('specifications')),
-            'variants'            => ProductVariantResource::collection($this->whenLoaded('variants')),
-
             'created_at'          => $this->created_at->toISOString(),
             'updated_at'          => $this->updated_at->toISOString(),
         ];

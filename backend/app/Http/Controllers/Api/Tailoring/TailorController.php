@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Tailoring;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tailor\StoreTailorRequest;
 use App\Http\Requests\Tailor\UpdateTailorRequest;
 use App\Http\Resources\TailorResource;
-use App\Models\Tailor;
+use App\Models\Tailoring\Tailor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

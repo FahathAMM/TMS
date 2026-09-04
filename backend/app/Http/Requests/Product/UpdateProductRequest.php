@@ -58,44 +58,6 @@ class UpdateProductRequest extends FormRequest
             'sort_order'         => 'nullable|integer|min:0',
             'published_at'       => 'nullable|date',
 
-            // Relations
-            'tags'               => 'nullable|array',
-            'tags.*'             => 'integer|exists:tags,id',
-            'attributes'         => 'nullable|array',
-            'attributes.*'       => 'integer|exists:attributes,id',
-
-            // SEO
-            'seo'                      => 'nullable|array',
-            'seo.meta_title'           => 'nullable|string|max:255',
-            'seo.meta_description'     => 'nullable|string|max:500',
-            'seo.meta_keywords'        => 'nullable|string|max:255',
-            'seo.og_title'             => 'nullable|string|max:255',
-            'seo.og_description'       => 'nullable|string|max:500',
-            'seo.og_image'             => 'nullable|string|max:500',
-            'seo.canonical_url'        => 'nullable|url|max:500',
-            'seo.schema_markup'        => 'nullable|array',
-
-            // Specifications
-            'specifications'              => 'nullable|array',
-            'specifications.*.group'      => 'nullable|string|max:100',
-            'specifications.*.label'      => 'required_with:specifications|string|max:255',
-            'specifications.*.value'      => 'required_with:specifications|string|max:1000',
-            'specifications.*.sort_order' => 'nullable|integer|min:0',
-
-            // Variants
-            'variants'                           => 'nullable|array',
-            'variants.*.id'                      => 'nullable|integer|exists:product_variants,id',
-            'variants.*.sku'                     => 'nullable|string|max:100',
-            'variants.*.price'                   => 'required_with:variants|numeric|min:0',
-            'variants.*.compare_price'           => 'nullable|numeric|min:0',
-            'variants.*.cost_price'              => 'nullable|numeric|min:0',
-            'variants.*.stock_quantity'          => 'nullable|integer|min:0',
-            'variants.*.low_stock_threshold'     => 'nullable|integer|min:0',
-            'variants.*.weight'                  => 'nullable|numeric|min:0',
-            'variants.*.is_active'               => 'boolean',
-            'variants.*.sort_order'              => 'nullable|integer|min:0',
-            'variants.*.attribute_value_ids'     => 'nullable|array',
-            'variants.*.attribute_value_ids.*'   => 'integer|exists:attribute_values,id',
         ];
     }
 }

@@ -20,6 +20,7 @@ class StoreOrderRequest extends FormRequest
 
             'order_type'                            => 'required|in:custom_stitching,alteration',
             'expected_delivery_date'                => 'nullable|date|after_or_equal:today',
+            'is_urgent'                             => 'nullable|boolean',
             'discount_amount'                       => 'nullable|numeric|min:0',
             'tax_amount'                             => 'nullable|numeric|min:0',
             'payment_method'                         => 'nullable|string|max:30',
