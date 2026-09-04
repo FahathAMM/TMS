@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Inventory;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Purchase\ReceivePurchaseRequest;
@@ -9,8 +9,9 @@ use App\Http\Requests\Purchase\StorePurchaseRequest;
 use App\Http\Requests\Purchase\UpdatePurchaseRequest;
 use App\Http\Resources\PurchasePaymentResource;
 use App\Http\Resources\PurchaseResource;
-use App\Models\Purchase;
+use App\Models\Inventory\Purchase;
 use App\Repositories\PurchaseRepo;
+use App\Services\AuthUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -43,7 +44,7 @@ class PurchaseController extends Controller
 
     public function store(StorePurchaseRequest $request): JsonResponse
     {
-        $purchase = $this->repo->store($request->validated(), $request->user()->id);
+        $purchase = $this->repo->store($request->validated(), AuthUser::id());
 
         return response()->json([
             'message' => "{$this->modelName} created successfully",
@@ -60,7 +61,7 @@ class PurchaseController extends Controller
 
     public function update(UpdatePurchaseRequest $request, Purchase $purchase): JsonResponse
     {
-        $purchase = $this->repo->update($purchase, $request->validated(), $request->user()->id);
+        $purchase = $this->repo->update($purchase, $request->validated(), AuthUser::id());
 
         return response()->json([
             'message' => "{$this->modelName} updated successfully",
@@ -79,7 +80,7 @@ class PurchaseController extends Controller
 
     public function receive(ReceivePurchaseRequest $request, Purchase $purchase): JsonResponse
     {
-        $purchase = $this->repo->receiveItems($purchase, $request->input('items'), $request->user()->id);
+        $purchase = $this->repo->receiveItems($purchase, $request->input('items'), AuthUser::id());
 
         return response()->json([
             'message' => 'Items received and stock updated',
@@ -100,7 +101,7 @@ class PurchaseController extends Controller
 
     public function storePayment(StorePurchasePaymentRequest $request, Purchase $purchase): JsonResponse
     {
-        $payment = $this->repo->storePayment($purchase, $request->validated(), $request->user()->id);
+        $payment = $this->repo->storePayment($purchase, $request->validated(), AuthUser::id());
 
         return response()->json([
             'message' => 'Payment recorded successfully',

@@ -26,14 +26,12 @@ class MenuController extends Controller
     {
         $menus = $this->repo->getData($request);
 
+        // Shape matches UserController@index: the raw paginator under
+        // "record", read by ServerDataTable as res.data.record.
         return response()->json([
-            'data' => MenuResource::collection($menus->items()),
-            'meta' => [
-                'current_page' => $menus->currentPage(),
-                'last_page'    => $menus->lastPage(),
-                'per_page'     => $menus->perPage(),
-                'total'        => $menus->total(),
-            ],
+            'record'  => $menus,
+            'message' => 'Menus retrieved successfully',
+            'status'  => true,
         ]);
     }
 
