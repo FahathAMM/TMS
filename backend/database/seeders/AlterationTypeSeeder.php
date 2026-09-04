@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\AlterationType;
+use App\Models\Tailoring\AlterationType;
 use Illuminate\Database\Seeder;
 
 class AlterationTypeSeeder extends Seeder

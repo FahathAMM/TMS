@@ -2,135 +2,271 @@
 
 namespace Database\Seeders;
 
-use App\Models\Menu;
+use App\Models\Administration\Menu;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 class MenuSeeder extends Seeder
 {
+    /**
+     * Every module the sidebar can show, as data instead of imperative calls.
+     * 'key' is just this node's own local segment — the stored slug is built
+     * by walking the tree and joining each ancestor's key with '-', e.g.
+     * tailoring -> orders becomes the slug "tailoring-orders".
+     * A module with no 'children' is a root stand-alone item (e.g. Dashboard).
+     * A module with 'children' is rendered as a section header whose children
+     * become the actual menu items underneath it.
+     */
+    private array $modules = [
+        [
+            'key' => 'dashboard',
+            'name' => 'Dashboard',
+            'route_name' => '/dashboard',
+            'icon' => 'LayoutDashboard',
+            'sort_order' => 1,
+        ],
+
+        [
+            'key' => 'customers',
+            'name' => 'Customers',
+            'icon' => 'UserCircle',
+            'sort_order' => 5,
+            'children' => [
+                [
+                    'key' => 'customers',
+                    'name' => 'Customers',
+                    'route_name' => '/customers',
+                    'icon' => 'UserCircle',
+                    'sort_order' => 1
+                ],
+            ],
+        ],
+
+        [
+            'key' => 'tailoring',
+            'name' => 'Tailoring',
+            'icon' => 'Shirt',
+            'sort_order' => 6,
+            'children' => [
+                [
+                    'key' => 'orders',
+                    'name' => 'Orders',
+                    'route_name' => '/orders',
+                    'icon' => 'ShoppingCart',
+                    'sort_order' => 1
+                ],
+                [
+                    'key' => 'production',
+                    'name' => 'Production',
+                    'route_name' => '/production',
+                    'icon' => 'ClipboardList',
+                    'sort_order' => 2
+                ],
+                [
+                    'key' => 'alteration',
+                    'name' => 'Alteration',
+                    'route_name' => '/alteration',
+                    'icon' => 'Scissors',
+                    'sort_order' => 3
+                ],
+                [
+                    'key' => 'tailors',
+                    'name' => 'Tailors',
+                    'route_name' => '/tailors',
+                    'icon' => 'Users',
+                    'sort_order' => 4
+                ],
+                [
+                    'key' => 'measurement_types',
+                    'name' => 'Measurement Types',
+                    'route_name' => '/measurement-types',
+                    'icon' => 'FileText',
+                    'sort_order' => 5
+                ],
+                [
+                    'key' => 'garment_prices',
+                    'name' => 'Price List',
+                    'route_name' => '/garment-prices',
+                    'icon' => 'Tag',
+                    'sort_order' => 6
+                ],
+                [
+                    'key' => 'alteration_types',
+                    'name' => 'Alteration Types',
+                    'route_name' => '/alteration-types',
+                    'icon' => 'Scissors',
+                    'sort_order' => 7
+                ],
+            ],
+        ],
+
+        [
+            'key' => 'inventory',
+            'name' => 'Inventory',
+            'icon' => 'Warehouse',
+            'sort_order' => 8,
+            'children' => [
+                [
+                    'key' => 'products',
+                    'name' => 'Fabrics & Trims',
+                    'route_name' => '/products',
+                    'icon' => 'Package',
+                    'sort_order' => 1
+                ],
+                [
+                    'key' => 'suppliers',
+                    'name' => 'Suppliers',
+                    'route_name' => '/suppliers',
+                    'icon' => 'Truck',
+                    'sort_order' => 2
+                ],
+                [
+                    'key' => 'purchases',
+                    'name' => 'Purchase Orders',
+                    'route_name' => '/purchases',
+                    'icon' => 'Warehouse',
+                    'sort_order' => 3
+                ],
+                [
+                    'key' => 'stock_movements',
+                    'name' => 'Stock Movements',
+                    'route_name' => '/stock-movements',
+                    'icon' => 'History',
+                    'sort_order' => 4
+                ],
+            ],
+        ],
+
+        // Admin-only, no staff permission sync.
+        [
+            'key' => 'accounting',
+            'name' => 'Accounting',
+            'icon' => 'DollarSign',
+            'sort_order' => 8,
+            'children' => [
+                [
+                    'key' => 'accounts',
+                    'name' => 'Chart of Accounts',
+                    'route_name' => '/accounting/accounts',
+                    'icon' => 'Database',
+                    'sort_order' => 1
+                ],
+                [
+                    'key' => 'journal',
+                    'name' => 'Journal',
+                    'route_name' => '/accounting/journal',
+                    'icon' => 'BookOpen',
+                    'sort_order' => 2
+                ],
+                [
+                    'key' => 'reports',
+                    'name' => 'Reports',
+                    'route_name' => '/accounting/reports',
+                    'icon' => 'BarChart2',
+                    'sort_order' => 3
+                ],
+                [
+                    'key' => 'expenses',
+                    'name' => 'Expenses',
+                    'route_name' => '/expenses',
+                    'icon' => 'Receipt',
+                    'sort_order' => 4
+                ],
+            ],
+        ],
+
+        // Business/operational reports, not GL.
+        [
+            'key' => 'reports',
+            'name' => 'Reports',
+            'icon' => 'PieChart',
+            'sort_order' => 9,
+            'children' => [
+                [
+                    'key' => 'reports',
+                    'name' => 'Reports',
+                    'route_name' => '/reports',
+                    'icon' => 'BarChart2',
+                    'sort_order' => 1
+                ],
+            ],
+        ],
+
+        [
+            'key' => 'admin',
+            'name' => 'Administration',
+            'icon' => 'Lock',
+            'sort_order' => 10,
+            'children' => [
+                [
+                    'key' => 'users',
+                    'name' => 'Users',
+                    'route_name' => '/users',
+                    'icon' => 'Users',
+                    'sort_order' => 1
+                ],
+                [
+                    'key' => 'roles',
+                    'name' => 'Roles',
+                    'route_name' => '/roles',
+                    'icon' => 'ShieldCheck',
+                    'sort_order' => 2
+                ],
+                [
+                    'key' => 'menus',
+                    'name' => 'Menus',
+                    'route_name' => '/menus',
+                    'icon' => 'LayoutList',
+                    'sort_order' => 3
+                ],
+                [
+                    'key' => 'settings',
+                    'name' => 'Settings',
+                    'route_name' => '/settings',
+                    'icon' => 'Settings2',
+                    'sort_order' => 4
+                ],
+                [
+                    'key' => 'audit_logs',
+                    'name' => 'Audit Logs',
+                    'route_name' => '/audit-logs',
+                    'icon' => 'Activity',
+                    'sort_order' => 5
+                ],
+            ],
+        ],
+    ];
+
     public function run(): void
     {
+        Schema::disableForeignKeyConstraints();
+        DB::table('model_has_permissions')->truncate();
+        DB::table('role_has_permissions')->truncate();
+        Permission::truncate();
+        Menu::truncate();
+        Schema::enableForeignKeyConstraints();
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
+        // super-admin: cannot be deleted (RoleController::destroy) and
+        // bypasses every permission/role check (AppServiceProvider::boot,
+        // User::hasRole) — so it's never synced permissions, it just
+        // doesn't need any.
+        Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => 'super-admin', 'guard_name' => 'web']);
+
         DB::transaction(function () {
-
-            // ── 1. Root stand-alone items ────────────────────────────────────────
-            $this->upsert('dashboard', [
-                'name' => 'Dashboard', 'route_name' => '/dashboard',
-                'icon' => 'LayoutDashboard', 'sort_order' => 1, 'parent_id' => null,
-            ]);
-
-            // ── 2. Section: Customers ────────────────────────────────────────────
-            $sCustomers = $this->section('section_customers', 'Customers', 5, 'UserCircle');
-
-            $this->upsert('customers', [
-                'name' => 'Customers', 'route_name' => '/customers',
-                'icon' => 'UserCircle', 'sort_order' => 1, 'parent_id' => $sCustomers->id,
-            ]);
-
-            // ── 2b. Section: Tailoring ────────────────────────────────────────────
-            $sTailoring = $this->section('section_tailoring', 'Tailoring', 6, 'Shirt');
-
-            $this->upsert('tailoring_orders', [
-                'name' => 'Orders', 'route_name' => '/orders',
-                'icon' => 'ShoppingCart', 'sort_order' => 1, 'parent_id' => $sTailoring->id,
-            ]);
-            $this->upsert('production', [
-                'name' => 'Production', 'route_name' => '/production',
-                'icon' => 'ClipboardList', 'sort_order' => 2, 'parent_id' => $sTailoring->id,
-            ]);
-            $this->upsert('alteration', [
-                'name' => 'Alteration', 'route_name' => '/alteration',
-                'icon' => 'Scissors', 'sort_order' => 3, 'parent_id' => $sTailoring->id,
-            ]);
-            $this->upsert('tailors', [
-                'name' => 'Tailors', 'route_name' => '/tailors',
-                'icon' => 'Users', 'sort_order' => 4, 'parent_id' => $sTailoring->id,
-            ]);
-            $this->upsert('measurement_types', [
-                'name' => 'Measurement Types', 'route_name' => '/measurement-types',
-                'icon' => 'FileText', 'sort_order' => 5, 'parent_id' => $sTailoring->id,
-            ]);
-            $this->upsert('garment_prices', [
-                'name' => 'Price List', 'route_name' => '/garment-prices',
-                'icon' => 'Tag', 'sort_order' => 6, 'parent_id' => $sTailoring->id,
-            ]);
-            $this->upsert('alteration_types', [
-                'name' => 'Alteration Types', 'route_name' => '/alteration-types',
-                'icon' => 'Scissors', 'sort_order' => 7, 'parent_id' => $sTailoring->id,
-            ]);
-
-            // ── 2c. Section: Inventory ───────────────────────────────────────────
-            $sInventory = $this->section('section_inventory', 'Inventory', 8, 'Warehouse');
-
-            $this->upsert('products', [
-                'name' => 'Fabrics & Trims', 'route_name' => '/products',
-                'icon' => 'Package', 'sort_order' => 1, 'parent_id' => $sInventory->id,
-            ]);
-            $this->upsert('suppliers', [
-                'name' => 'Suppliers', 'route_name' => '/suppliers',
-                'icon' => 'Truck', 'sort_order' => 2, 'parent_id' => $sInventory->id,
-            ]);
-            $this->upsert('purchases', [
-                'name' => 'Purchase Orders', 'route_name' => '/purchases',
-                'icon' => 'Warehouse', 'sort_order' => 3, 'parent_id' => $sInventory->id,
-            ]);
-            $this->upsert('stock_movements', [
-                'name' => 'Stock Movements', 'route_name' => '/stock-movements',
-                'icon' => 'History', 'sort_order' => 4, 'parent_id' => $sInventory->id,
-            ]);
-
-            // ── 2d. Section: Accounting (admin-only, no staff permission sync) ────
-            $sAccounting = $this->section('section_accounting', 'Accounting', 8, 'DollarSign');
-
-            $this->upsert('accounting_accounts', [
-                'name' => 'Chart of Accounts', 'route_name' => '/accounting/accounts',
-                'icon' => 'Database', 'sort_order' => 1, 'parent_id' => $sAccounting->id,
-            ]);
-            $this->upsert('accounting_journal', [
-                'name' => 'Journal', 'route_name' => '/accounting/journal',
-                'icon' => 'BookOpen', 'sort_order' => 2, 'parent_id' => $sAccounting->id,
-            ]);
-            $this->upsert('accounting_reports', [
-                'name' => 'Reports', 'route_name' => '/accounting/reports',
-                'icon' => 'BarChart2', 'sort_order' => 3, 'parent_id' => $sAccounting->id,
-            ]);
-            $this->upsert('expenses', [
-                'name' => 'Expenses', 'route_name' => '/expenses',
-                'icon' => 'Receipt', 'sort_order' => 4, 'parent_id' => $sAccounting->id,
-            ]);
-
-            // ── 2e. Section: Reports (business/operational, not GL) ────────────────
-            $sReports = $this->section('section_reports', 'Reports', 9, 'PieChart');
-
-            $this->upsert('reports', [
-                'name' => 'Reports', 'route_name' => '/reports',
-                'icon' => 'BarChart2', 'sort_order' => 1, 'parent_id' => $sReports->id,
-            ]);
-
-            // ── 3. Section: Administration ───────────────────────────────────────
-            $sAdmin = $this->section('section_admin', 'Administration', 10, 'Lock');
-
-            $this->upsert('users', [
-                'name' => 'Users', 'route_name' => '/users',
-                'icon' => 'Users', 'sort_order' => 1, 'parent_id' => $sAdmin->id,
-            ]);
-            $this->upsert('roles', [
-                'name' => 'Roles', 'route_name' => '/roles',
-                'icon' => 'ShieldCheck', 'sort_order' => 2, 'parent_id' => $sAdmin->id,
-            ]);
-            $this->upsert('menus', [
-                'name' => 'Menus', 'route_name' => '/menus',
-                'icon' => 'LayoutList', 'sort_order' => 3, 'parent_id' => $sAdmin->id,
-            ]);
-            $this->upsert('settings', [
-                'name' => 'Settings', 'route_name' => '/settings',
-                'icon' => 'Settings2', 'sort_order' => 4, 'parent_id' => $sAdmin->id,
-            ]);
+            foreach ($this->modules as $module) {
+                $this->seedModule($module, null, null);
+            }
         });
+
+        $this->generatePermissions();
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
@@ -140,15 +276,66 @@ class MenuSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
     }
 
+    /**
+     * Recursively upserts a module (and its children, if any), building the
+     * stored slug as parent-child-child... by chaining each ancestor's key.
+     */
+    private function seedModule(array $module, ?string $parentSlug, ?int $parentId): void
+    {
+        $slug = $parentSlug ? "{$parentSlug}-{$module['key']}" : $module['key'];
+
+        if (isset($module['children'])) {
+            $parent = $this->section($slug, $module['name'], $module['sort_order'], $module['icon'] ?? null, $parentId);
+            Log::info("Seeding menu item: {$slug} ({$module['name']})");
+
+            foreach ($module['children'] as $child) {
+                $this->seedModule($child, $slug, $parent->id);
+            }
+        } else {
+            Log::info("Seeding menu item: {$slug} ({$module['name']})");
+            $this->upsert($slug, [
+                'name'       => $module['name'],
+                'route_name' => $module['route_name'],
+                'icon'       => $module['icon'] ?? null,
+                'sort_order' => $module['sort_order'],
+                'parent_id'  => $parentId,
+            ]);
+        }
+    }
+
     private function upsert(string $slug, array $attrs): Menu
     {
         $menu = Menu::firstOrNew(['slug' => $slug]);
-        $menu->fill(array_merge($attrs, ['is_active' => true, 'slug' => $slug]));
+        $menu->slug       = $slug;
+        $menu->name       = $attrs['name'];
+        $menu->route_name = $attrs['route_name'];
+        $menu->icon       = $attrs['icon'];
+        $menu->sort_order = $attrs['sort_order'];
+        $menu->parent_id  = $attrs['parent_id'];
+        $menu->is_active  = true;
         $menu->save();
         return $menu;
     }
 
-    private function section(string $slug, string $name, int $sortOrder, ?string $icon = null): Menu
+    /**
+     * For every navigable menu (has a route), create its 4 CRUD permissions
+     * named "{slug}-view", "{slug}-create", "{slug}-edit", "{slug}-delete".
+     */
+    private function generatePermissions(): void
+    {
+        $slugs = Menu::whereNotNull('route_name')->pluck('slug');
+
+        foreach ($slugs as $slug) {
+            foreach (['view', 'create', 'edit', 'delete'] as $action) {
+                Permission::firstOrCreate([
+                    'name'       => "{$slug}-{$action}",
+                    'guard_name' => 'web',
+                ]);
+            }
+        }
+    }
+
+    private function section(string $slug, string $name, int $sortOrder, ?string $icon = null, ?int $parentId = null): Menu
     {
         $menu = Menu::firstOrNew(['slug' => $slug]);
         $menu->fill([
@@ -156,7 +343,7 @@ class MenuSeeder extends Seeder
             'name'       => $name,
             'route_name' => null,
             'icon'       => $icon,
-            'parent_id'  => null,
+            'parent_id'  => $parentId,
             'sort_order' => $sortOrder,
             'is_active'  => true,
         ]);

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\Customer;
+use App\Models\Administration\User;
+use App\Models\Customers\Customer;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -12,10 +12,8 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Seed roles and permissions first
-        $this->call(RolesAndPermissionsSeeder::class);
-
-        // Seed menu structure (creates nav-visibility permissions, syncs admin role)
+        // Seed menu structure (also creates the admin/staff/super-admin
+        // roles, nav-visibility permissions, and syncs the admin role)
         $this->call(MenuSeeder::class);
 
         // Chart of accounts (double-entry ledger) and measurement lookups
@@ -25,13 +23,6 @@ class DatabaseSeeder extends Seeder
 
         // Store settings (key-value, cached)
         $this->call(StoreSettingSeeder::class);
-
-        // Attributes and Tags
-        $this->call(AttributeSeeder::class);
-        $this->call(ProductAttributesSeeder::class);
-        $this->call(ProductAttributeValuesSeeder::class);
-        $this->call(TagSeeder::class);
-        $this->call(TagsSeeder::class);
 
         // Admin user
         $admin = User::firstOrCreate(
@@ -47,12 +38,16 @@ class DatabaseSeeder extends Seeder
         );
         $staff->syncRoles([Role::findByName('staff', 'web')]);
 
+        // Fahath — admin account
+        $fahath = User::firstOrCreate(
+            ['email' => 'fahathammex90@gmail.com'],
+            ['name' => 'Fahath', 'password' => Hash::make('fahath@123'), 'is_active' => true]
+        );
+        $fahath->syncRoles([Role::findByName('admin', 'web')]);
+
         // Fabric & trim catalogue (categories, brands, products) — replaces the
         // Mobile Shop POS electronics seed data from the original scaffold.
         $this->call(FabricCatalogSeeder::class);
-
-        // Tailors available for assignment on order items
-        $this->call(TailorSeeder::class);
 
         // Customers
         $customers = [
@@ -64,5 +59,9 @@ class DatabaseSeeder extends Seeder
         foreach ($customers as $customer) {
             Customer::firstOrCreate(['mobile' => $customer['mobile']], $customer);
         }
+
+        // Tailors available for assignment, plus demo custom-stitching orders
+        // and alteration orders so the tailoring flows have sample data.
+        $this->call(TailorSeeder::class);
     }
 }

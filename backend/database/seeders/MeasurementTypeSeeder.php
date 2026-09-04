@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\MeasurementType;
+use App\Models\Tailoring\MeasurementType;
 use App\Services\MeasurementTypeService;
 use Illuminate\Database\Seeder;
 
